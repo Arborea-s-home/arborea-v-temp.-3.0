@@ -1,6 +1,4 @@
 // tutorial.js
-import { getPath } from './path_utils.js';
-
 const TUTORIAL_STORAGE_KEY = 'arborea_tutorial_seen_v1';
 
 export class Tutorial {
@@ -9,83 +7,41 @@ export class Tutorial {
     try { localStorage.setItem(TUTORIAL_STORAGE_KEY, '1'); } catch {}
 
     this.steps = [
-      // STEP 0 — testo aggiornato
       {
-        title: "Welcome to ARBOREA",
-        content:
-          `Welcome to the main page of <strong>ARBOREA</strong> (ARchaeoBOtanical geoReferenced rEcords of Ancient Italy), a new digital tool designed to compile, harmonize, and georeference archaeobotanical data from Central Italy.<br/><br/>
-           You're currently on the main page of the site. Here you can see our current dataset in a grouped fashion. See the next step to see how to further explore our data.`,
-        target: null,
-        position: "center",
-        image: "images/homepage.png"
+        title: 'Benvenuto in ARBOREA',
+        content: 'L’atlante raccoglie dati archeobotanici georeferenziati dell’Italia centrale. <strong>Apri WebGIS</strong> per esplorare tutte le schede.',
+        target: '#atlas-webgis',
+        position: 'center'
       },
-
-      // STEP 1 — stesso testo, ma punta SOLO allo switcher regioni/province
       {
-        title: "Group by Regions / Provinces",
-        content:
-          "Use this switch to aggregate counts by <strong>modern regions</strong> or <strong>provinces</strong>. The map and the graph update accordingly.",
-        target: "#admin-boundary-switch",
-        position: "right"
+        title: 'Regioni e province',
+        content: 'Usa <strong>Regioni</strong> e <strong>Province</strong> sulla mappa per cambiare l’unità di aggregazione. La legenda indica quanti siti ricadono in ogni area.',
+        target: '.atlas-boundary',
+        position: 'left'
       },
-
-      // STEP 2 — merge degli ex step 2/3, nessuna immagine, box alla destra
       {
-        title: "Graph view & feature selection",
-        content:
-          `The <strong>Graph</strong> view is enabled by default. Use the view toggle here to switch between the <em>Graph</em> and the classic <em>List</em> (Region → Province → Site).<br/><br/>
-           Then open a category in the left panel and toggle the <strong>feature switches</strong> you want to display — green means active. The map (green choropleth) and the timeline bars adapt to your selection.`,
-        // puntiamo al box del grafico (donut). Se cambi id in futuro, aggiorna qui.
-        target: "#sites-pie",
-        position: "right"
+        title: 'Tipologie di contesto',
+        content: 'Premi una barra per escludere o reincludere la tipologia. La sua lunghezza riflette la quantità di siti nel periodo selezionato.',
+        target: '#ambito-buttons',
+        position: 'right'
       },
-
-      // STEP 3 — (ex 4) invariato
       {
-        title: "Drill-down on the doughnut",
-        content:
-          "Click a <strong>region</strong> slice to drill down into its <strong>provinces</strong>. The action buttons above the chart light up when a region/province is selected. Ctrl/Cmd-click (or double click) opens the related detail page directly.",
-        target: "#sites-pie",
-        position: "left"
+        title: 'Distribuzione ed elenco',
+        content: 'In <strong>Distribuzione</strong>, seleziona una fetta o una voce in legenda per passare dalle regioni alle province. In <strong>Elenco</strong>, ciascun segmento apre i siti di una provincia. Usa i link alle schede per aprire il WebGIS con il filtro corrispondente.',
+        target: '#mapped-sites-list .atlas-mode',
+        position: 'right'
       },
-
-      // STEP 4 — (ex 5) invariato
       {
-        title: "Open detail pages",
-        content:
-          "After selecting a region, <strong>Region samples</strong> becomes available. After selecting a province, <strong>Province samples</strong> does the same. A site table appears below the chart to browse entries.",
-        target: ".graph-actions",
-        position: "left"
+        title: 'Cronologia',
+        content: 'Sposta i due cursori o seleziona un periodo dall’asse per restringere l’intervallo. Attiva <strong>Includi siti non datati</strong> per includere anche i siti senza una fase riconosciuta.',
+        target: '#timeline-container',
+        position: 'top'
       },
-
-      // STEP 5 — (ex 6) Timeline invariata
       {
-        title: "Interactive Timeline",
-        content:
-          "Use the two sliders to select a <strong>chronological range</strong>. Click labels on the axis to snap the selection. Toggle <em>add undated sites</em> to include records without an explicit phase. The map and bars update immediately.",
-        target: "#timeline-container",
-        position: "top"
-      },
-
-      // STEP 6 — “Project Credits” → rimpiazzato con spiegazione del grafico del popup, con immagine ex step 2
-      {
-        title: "Understanding the popup chart",
-        content:
-          `Click on a region/province on the map to open a popup. The horizontal bars show each selected feature in that area as <strong>% of the overall average</strong> across all areas (<em>100% = average</em>).<br/><br/>
-           The gradient helps you read at a glance: green ≈ around/below average; yellow → orange → red indicate progressively higher values vs the average. Use <strong>“Full Details”</strong> for a dedicated page with complete breakdowns.`,
-        target: "#map",
-        position: "top",
-        image: "images/graph.png"
-      },
-
-      // STEP 7 — (ex 8) invariato
-      {
-        title: "Info & Documentation",
-        content:
-          `Click the central logo to open the info page with background, methods and acknowledgments.<br/><br/>
-           Feeling lost? Rerun this tutorial by clicking on the main logo on the dashboard`,
-        target: ".map-logo-container",
-        position: "left"
+        title: 'Schede e informazioni sul progetto',
+        content: 'Clicca un’area sulla mappa per aprire il confronto con le altre aree. <strong>Full Details</strong> apre la scheda di dettaglio. Il logo in testata porta alle informazioni sul progetto.',
+        target: '#atlas-project-link',
+        position: 'center'
       }
     ];
 
@@ -94,9 +50,12 @@ export class Tutorial {
   }
 
   init() {
+    this.previousFocus = document.activeElement;
     this.createTutorialElements();
     this.showStep(0);
-    document.addEventListener('keydown', this.handleKeyPress.bind(this));
+    this.keyHandler = this.handleKeyPress.bind(this);
+    document.addEventListener('keydown', this.keyHandler);
+    this.tutorialBox.focus();
   }
 
   createTutorialElements() {
@@ -108,32 +67,35 @@ export class Tutorial {
 
     this.tutorialBox = document.createElement('div');
     this.tutorialBox.className = 'tutorial-box';
+    this.tutorialBox.setAttribute('role', 'dialog');
+    this.tutorialBox.setAttribute('aria-modal', 'true');
+    this.tutorialBox.setAttribute('aria-labelledby', 'atlas-tutorial-title');
+    this.tutorialBox.tabIndex = -1;
 
     this.tutorialTitle = document.createElement('h3');
     this.tutorialTitle.className = 'tutorial-title';
+    this.tutorialTitle.id = 'atlas-tutorial-title';
 
     this.tutorialContent = document.createElement('div');
     this.tutorialContent.className = 'tutorial-content';
 
-    this.tutorialImage = document.createElement('img');
-    this.tutorialImage.className = 'tutorial-image';
 
     this.tutorialNav = document.createElement('div');
     this.tutorialNav.className = 'tutorial-nav';
 
     this.prevButton = document.createElement('button');
     this.prevButton.className = 'tutorial-button tutorial-prev';
-    this.prevButton.innerHTML = '&larr; Previous';
+    this.prevButton.innerHTML = '&larr; Indietro';
     this.prevButton.addEventListener('click', () => this.prevStep());
 
     this.nextButton = document.createElement('button');
     this.nextButton.className = 'tutorial-button tutorial-next';
-    this.nextButton.innerHTML = 'Next &rarr;';
+    this.nextButton.innerHTML = 'Avanti &rarr;';
     this.nextButton.addEventListener('click', () => this.nextStep());
 
     this.closeButton = document.createElement('button');
     this.closeButton.className = 'tutorial-button tutorial-close';
-    this.closeButton.innerHTML = 'Close Tutorial';
+    this.closeButton.innerHTML = 'Chiudi';
     this.closeButton.addEventListener('click', () => this.close());
 
     this.tutorialNav.appendChild(this.prevButton);
@@ -142,7 +104,6 @@ export class Tutorial {
 
     this.tutorialBox.appendChild(this.tutorialTitle);
     this.tutorialBox.appendChild(this.tutorialContent);
-    this.tutorialBox.appendChild(this.tutorialImage);
     this.tutorialBox.appendChild(this.tutorialNav);
 
     document.body.appendChild(this.overlay);
@@ -151,18 +112,12 @@ export class Tutorial {
   }
 
   showStep(stepIndex) {
+    clearTimeout(this.highlightTimer);
     this.currentStep = stepIndex;
     const step = this.steps[stepIndex];
 
     this.tutorialTitle.textContent = step.title;
     this.tutorialContent.innerHTML = step.content;
-
-    if (step.image) {
-      this.tutorialImage.src = getPath(step.image);
-      this.tutorialImage.style.display = 'block';
-    } else {
-      this.tutorialImage.style.display = 'none';
-    }
 
     this.positionTutorialBox(step.position);
 
@@ -170,7 +125,7 @@ export class Tutorial {
       const targetElement = document.querySelector(step.target);
       if (targetElement) {
         targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setTimeout(() => this.highlightElement(targetElement), 350);
+        this.highlightTimer = setTimeout(() => this.highlightElement(targetElement), 350);
       } else {
         this.hideHighlight();
       }
@@ -179,7 +134,7 @@ export class Tutorial {
     }
 
     this.prevButton.disabled = stepIndex === 0;
-    this.nextButton.innerHTML = stepIndex === this.steps.length - 1 ? 'Finish' : 'Next &rarr;';
+    this.nextButton.innerHTML = stepIndex === this.steps.length - 1 ? 'Fine' : 'Avanti &rarr;';
   }
 
   positionTutorialBox(position) {
@@ -244,19 +199,30 @@ export class Tutorial {
   prevStep() { if (this.currentStep > 0) this.showStep(this.currentStep - 1); }
 
   close() {
-    // (facoltativo) ribadisco il flag visto
+    document.removeEventListener('keydown', this.keyHandler);
+    clearTimeout(this.highlightTimer);
+    this.previousFocus?.focus({ preventScroll: true });
     try { localStorage.setItem(TUTORIAL_STORAGE_KEY, '1'); } catch {}
     this.overlay.style.opacity = '0';
     this.highlightBox.style.opacity = '0';
     this.tutorialBox.style.opacity = '0';
     setTimeout(() => {
-      document.body.removeChild(this.overlay);
-      document.body.removeChild(this.highlightBox);
-      document.body.removeChild(this.tutorialBox);
+      this.overlay.remove();
+      this.highlightBox.remove();
+      this.tutorialBox.remove();
     }, 300);
   }
 
   handleKeyPress(e) {
+    if (e.key === 'Tab') {
+      const buttons = [...this.tutorialNav.querySelectorAll('button:not(:disabled)')];
+      const edge = e.shiftKey ? buttons[0] : buttons.at(-1);
+      if (document.activeElement === edge || document.activeElement === this.tutorialBox) {
+        e.preventDefault();
+        (e.shiftKey ? buttons.at(-1) : buttons[0])?.focus();
+      }
+      return;
+    }
     if (e.key === 'ArrowRight') this.nextStep();
     else if (e.key === 'ArrowLeft') this.prevStep();
     else if (e.key === 'Escape') this.close();

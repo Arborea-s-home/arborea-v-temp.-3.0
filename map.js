@@ -1,15 +1,39 @@
-// map.js
 import { createPopupContent } from './popup.js';
 import { getPath } from './path_utils.js';
+import { addBaseMap } from './basemap.js';
+
+const MAP_COLORS = ['#dbe6d3', '#c5d6bb', '#abc49f', '#88aa78', '#5e8654'];
+// Ancore nel corpo principale di ogni regione, indipendenti da isole e punte del confine.
+const REGION_LABEL_ANCHORS = new Map([
+  ['Toscana', [43.45, 11.13]],
+  ['Umbria', [42.96, 12.48]],
+  ['Marche', [43.35, 13.17]],
+  ['Lazio', [41.98, 12.55]],
+  ['Abruzzo', [42.23, 13.80]],
+  ['Molise', [41.68, 14.60]]
+]);
+
+function normalizeTypes(typology) {
+  return [...new Set(String(typology ?? '').split(/[,;]/).map(value => {
+    const key = value.trim().toLowerCase().replace(/\.+$/, '');
+    return key === 'settlment' ? 'settlement' : key;
+  }).filter(Boolean))];
+}
+
+async function readData(path, format) {
+  const response = await fetch(getPath(path));
+  if (!response.ok) throw new Error(path + ': HTTP ' + response.status);
+  return format === 'json' ? response.json() : response.text();
+}
 
 class MapManager {
   constructor() {
-    this.map = L.map("map").setView([42.2, 13.3], 7); // centro Italia (Lazio–Abruzzo)
-    this.geojsonLayer = null;
-    this.layers = {};
-    this.currentFields = [];            // tipologie correnti selezionate
-    this.activeBoundary = 'region';     // 'region' | 'province'
-    this.includeUndated = false; // stato per toggle timeline
+    this.map = L.map('map').setView([42.4, 12.4], 7);
+    this.currentFields = null;
+    this.activeBoundary = 'region';
+    this.includeUndated = false;
+    this.selection = { region: null, province: null };
+    addBaseMap(this.map);
 
     // Ordine fasi (con accorpamenti richiesti)
     this.PHASES = [
@@ -50,213 +74,164 @@ class MapManager {
     this.chronoFrom = 0;
     this.chronoTo = this.PHASES.length - 1;
 
-    this.initBaseMap();
-  }
-
-  initBaseMap() {
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; ...',
-      subdomains: 'abcd',
-      maxZoom: 19
-    }).addTo(this.map);
-
-    this.loadData();
+    if ('ResizeObserver' in window) {
+      this.mapResize = new ResizeObserver(() => this.map.invalidateSize({ pan: false }));
+      this.mapResize.observe(this.map.getContainer());
+    }
+    this.setupBoundaryButtons();
   }
 
   async loadData() {
-    const [sitiGeoJSON, regionsGeoJSON, provincesGeoJSON, explanationCsv] = await Promise.all([
-      fetch(getPath("data/siti.geojson")).then(res => res.json()),
-      fetch(getPath("data/regions.geojson")).then(res => res.json()),
-      fetch(getPath("data/provinces.geojson")).then(res => res.json()),
-      fetch(getPath("data/spiegazione_dati.csv")).then(res => res.text())
+    const [sites, regions, provinces, explanation] = await Promise.all([
+      readData('data/siti.geojson', 'json'),
+      readData('data/regions.geojson', 'json'),
+      readData('data/provinces.geojson', 'json'),
+      readData('data/spiegazione_dati.csv', 'text')
     ]);
 
-    this.sitiFeatures = sitiGeoJSON.features || [];
-    this.regionsGeoJSON = regionsGeoJSON;
-    this.provincesGeoJSON = provincesGeoJSON;
+    this.sitiFeatures = sites.features;
+    this.regionsGeoJSON = regions;
+    this.provincesGeoJSON = provinces;
+    this.fieldDefinitions = Papa.parse(explanation, { header: true, skipEmptyLines: 'greedy' }).data;
+    window.labelMap = Object.fromEntries(this.fieldDefinitions
+      .filter(row => row.DENOMINAZIONE && row.ID)
+      .map(row => [row.DENOMINAZIONE.trim(), row.ID.trim()]));
 
-    // Etichette ID (se ti servono altrove)
-    const explanationData = Papa.parse(explanationCsv, { header: true }).data;
-    window.labelMap = {};
-    explanationData.forEach(row => {
-      if (row?.DENOMINAZIONE && row?.ID) {
-        window.labelMap[row.DENOMINAZIONE.trim()] = row.ID.trim();
-      }
+    this.regionByProvince = new Map();
+    this.sitiFeatures.forEach(site => {
+      const p = site.properties;
+      const raw = p.parent_chronology_iccd;
+      const phases = typeof raw === 'string' ? raw.split(';') : [];
+      p._phasesNormalized = new Set(phases
+        .map(phase => this.phaseLookup.get(this.phaseSlug(phase.trim())))
+        .filter(Boolean));
+      p._atlasTypes = normalizeTypes(p.typology);
+      if (p.region && p.province) this.regionByProvince.set(p.province, p.region);
     });
 
-    // 🔴 PRECALCOLO: fasi normalizzate per ogni sito (da parent_chronology_iccd, multi-valore)
-    this.sitiFeatures.forEach(f => {
-      const raw = f?.properties?.parent_chronology_iccd;
-      const phases = new Set();
-      if (raw && typeof raw === 'string') {
-        raw.split(';')
-          .map(s => s.trim())
-          .filter(Boolean)
-          .forEach(tok => {
-            const key = this.phaseSlug(tok);
-            const std = this.phaseLookup.get(key);
-            if (std) phases.add(std);
-          });
-      }
-      f.properties._phasesNormalized = phases; // Set<string>
-    });
-
-    // Prima aggregazione (con range cronologico completo)
-    this.aggregateDataByArea();
-
-    // Disegno iniziale: se non ci sono tipologie selezionate, mostrare il totale per area
-    this.updateMap([]);
     document.dispatchEvent(new CustomEvent('map:data-ready'));
+    if (!this.geojsonLayer) this.updateMap();
   }
 
-  // Re-aggregazione per area (region/province), rispettando range cronologico
-  aggregateDataByArea() {
-    const selectedPhaseSet = new Set(this.PHASES.slice(this.chronoFrom, this.chronoTo + 1));
-    this.countsByArea = {}; // { area: { typology: count } }
-  
-    // ✅ NIENTE dati? esci senza errori
-    if (!Array.isArray(this.sitiFeatures) || this.sitiFeatures.length === 0) {
-      return;
-    }
-  
-    this.sitiFeatures.forEach(f => {
-      const props = f.properties || {};
-      const phases = props._phasesNormalized || new Set();
-      const hasPhases = phases.size > 0;
-      let chronoOk = hasPhases ? [...phases].some(p => selectedPhaseSet.has(p)) : false;
-  
-      // includi i siti senza data quando il toggle è ON
-      if (this.includeUndated && !hasPhases) chronoOk = true;
-      if (!chronoOk) return;
-  
-      const typology = props.typology;
-      if (!typology) return;
-  
-      const key = (this.activeBoundary === 'province') ? props.province : props.region;
-      if (!key) return;
-  
-      if (!this.countsByArea[key]) this.countsByArea[key] = {};
-      this.countsByArea[key][typology] = (this.countsByArea[key][typology] || 0) + 1;
-    });
-  }  
-
-  // Chiamato dalla timeline (due slider)
-  setChronoSelectionByIndices(fromIdx, toIdx) {
-    const max = this.PHASES.length - 1;
-    this.chronoFrom = Math.max(0, Math.min(fromIdx, toIdx));
-    this.chronoTo = Math.min(max, Math.max(fromIdx, toIdx));
-
-    // Ricalcola aggregazioni per il nuovo range e ridisegna con i filtri correnti
-    this.aggregateDataByArea();
-
-    const fields =
-      (window.dashboard && window.dashboard.selectedFields && window.dashboard.selectedFields.size)
-        ? [...window.dashboard.selectedFields]
-        : (this.currentFields || []);
-
-    this.updateMap(fields);
+  passesType(site) {
+    return this.currentFields === null || site.properties._atlasTypes.some(type => this.currentFields.includes(type));
   }
 
-  // Per la timeline: #siti per fase (rispettando eventuale filtro tipologico)
-  computePhaseCounts(selectedTypologies = []) {
-    const useTyp = Array.isArray(selectedTypologies) ? new Set(selectedTypologies) : new Set();
-    const counts = new Array(this.PHASES.length).fill(0);
-  
-    // ✅ niente dati? torna zeri
-    if (!Array.isArray(this.sitiFeatures) || this.sitiFeatures.length === 0) {
-      return counts;
+  setChronoSelectionByIndices(from, to) {
+    this.chronoFrom = Math.min(from, to);
+    this.chronoTo = Math.max(from, to);
+    this.updateMap();
+  }
+
+  setIncludeUndated(include) {
+    this.includeUndated = include;
+    this.updateMap();
+  }
+
+  computePhaseCounts() {
+    const counts = this.PHASES.map(() => 0);
+    for (const site of this.sitiFeatures || []) {
+      if (!this.passesType(site)) continue;
+      for (const phase of site.properties._phasesNormalized) {
+        counts[this.PHASES.indexOf(phase)]++;
+      }
     }
-  
-    this.sitiFeatures.forEach(f => {
-      const props = f.properties || {};
-      const typOk = useTyp.size === 0 ? true : useTyp.has(props.typology);
-      if (!typOk) return;
-  
-      const phases = props._phasesNormalized || new Set();
-      phases.forEach(p => {
-        const idx = this.PHASES.indexOf(p);
-        if (idx >= 0) counts[idx] += 1;
-      });
-    });
-  
     return counts;
   }
-  
-  // ————————————————————————
-  // Disegno mappa (choropleth)
-  // ————————————————————————
-  updateMap(fields = []) {
-    const incoming = Array.isArray(fields) ? fields : [fields];
-    const useFields = incoming.length ? incoming : (this.currentFields || []);
-    this.currentFields = useFields;
-  
-    // ✅ se i siti non sono pronti, esci in silenzio
-    if (!Array.isArray(this.sitiFeatures)) return;
-  
-    // se non ho ancora aggregato, fallo ora (non darà errore grazie alla guardia sopra)
-    if (!this.countsByArea) this.aggregateDataByArea();
-  
-    if (this.geojsonLayer) this.map.removeLayer(this.geojsonLayer);
-    this.geojsonLayer = L.layerGroup();
-    this.updateStandardMap(useFields);
-    this.geojsonLayer.addTo(this.map);
-  }
-  
-  updateStandardMap(fields = []) {
-    this.geojsonLayer = L.layerGroup();
-  
-    const counts = this.countsByArea || {};     // ✅ guard
-    const sumAll = fields.length === 0;
-    const areaSums = {};
-  
-    if (sumAll) {
-      Object.entries(counts).forEach(([area, typologies]) => {
-        const tot = Object.values(typologies || {}).reduce((acc, n) => acc + (n || 0), 0);
-        areaSums[area] = tot;
-      });
-    } else {
-      fields.forEach(typology => {
-        Object.entries(counts).forEach(([area, typologies]) => {
-          const count = (typologies && typologies[typology]) || 0;
-          if (!areaSums[area]) areaSums[area] = 0;
-          areaSums[area] += count;
-        });
-      });
+
+  updateMap(fields = this.currentFields) {
+    this.currentFields = fields;
+    if (!this.sitiFeatures) return;
+
+    const phases = new Set(this.PHASES.slice(this.chronoFrom, this.chronoTo + 1));
+    const inPeriod = this.sitiFeatures.filter(site => {
+      const sitePhases = site.properties._phasesNormalized;
+      return sitePhases.size ? [...sitePhases].some(phase => phases.has(phase)) : this.includeUndated;
+    });
+    const results = inPeriod.filter(site => this.passesType(site));
+    this.countsByArea = Object.create(null);
+    const typeCounts = new Map();
+    for (const site of inPeriod) {
+      const p = site.properties;
+      const name = p[this.activeBoundary];
+      for (const type of p._atlasTypes) {
+        typeCounts.set(type, (typeCounts.get(type) || 0) + 1);
+        if (name) {
+          const counts = this.countsByArea[name] ??= Object.create(null);
+          counts[type] = (counts[type] || 0) + 1;
+        }
+      }
     }
 
-    // Calcola min/max esclusi zeri
-    const values = Object.values(areaSums).filter(v => v > 0);
-    const min = values.length ? Math.min(...values) : 0;
-    const max = values.length ? Math.max(...values) : 1;
+    const totals = new Map();
+    for (const site of results) {
+      const name = site.properties[this.activeBoundary];
+      if (name) totals.set(name, (totals.get(name) || 0) + 1);
+    }
+    this.renderAreas(totals);
+    document.dispatchEvent(new CustomEvent('map:results-change', { detail: { typeCounts, results } }));
+  }
 
-    // Scegli il GeoJSON giusto in base allo switch
-    const gj = (this.activeBoundary === 'province')
-      ? this.provincesGeoJSON
-      : this.regionsGeoJSON;
-
-    const layer = L.geoJSON(gj, {
-      filter: (feature) => {
-        const name = feature.properties.name;
-        return name in areaSums;
-      },
-      style: (feature) => {
-        const name = feature.properties.name;
-        const val = areaSums[name] || 0;
-        return {
-          fillColor: this.getColor(val, min, max),
-          weight: 1,
-          color: "#666",
-          fillOpacity: val > 0 ? 0.8 : 0.1
-        };
-      },
+  renderAreas(totals) {
+    const geojson = this.activeBoundary === 'province' ? this.provincesGeoJSON : this.regionsGeoJSON;
+    const ranges = geojson.features.map(feature => totals.get(feature.properties.name) || 0).filter(Boolean);
+    const min = ranges.length ? Math.min(...ranges) : 0;
+    const max = ranges.length ? Math.max(...ranges) : 0;
+    const typeFields = this.currentFields ?? Object.keys(window.labelMap);
+    const style = ({ properties: { name } }) => {
+      const selected = this.isSelectedArea(name);
+      return {
+        fillColor: this.getColor(totals.get(name) || 0, min, max),
+        fillOpacity: .78,
+        color: selected ? '#bc5a38' : '#667f61',
+        weight: selected ? 2.3 : .8,
+        opacity: selected ? 1 : .85
+      };
+    };
+    if (this.geojsonLayer) this.map.removeLayer(this.geojsonLayer);
+    this.areaStyle = style;
+    this.geojsonLayer = L.geoJSON(geojson, {
+      filter: ({ properties: { name } }) => totals.has(name),
+      style,
       onEachFeature: (feature, layer) => {
-        this.bindPopupArea(feature, layer, fields);
+        if (this.activeBoundary === 'region') {
+          const label = document.createElement('span');
+          const name = feature.properties.name;
+          label.textContent = name;
+          layer.bindTooltip(label, { permanent: true, direction: 'center', className: 'atlas-map-label' });
+          layer.on('add', () => {
+            const position = REGION_LABEL_ANCHORS.get(name) ?? layer.getBounds().getCenter();
+            layer.getTooltip().setLatLng(position);
+          });
+        }
+        this.bindPopupArea(feature, layer, typeFields);
+        layer.on('click', () => {
+          const name = feature.properties.name;
+          const selection = this.activeBoundary === 'region'
+            ? { region: name, province: null }
+            : { region: this.regionByProvince.get(name) ?? null, province: name };
+          this.selectArea(selection);
+          document.dispatchEvent(new CustomEvent('map:area-select', { detail: selection }));
+        });
       }
-    });
+    }).addTo(this.map);
+    this.selectArea(this.selection);
+    this.updateLegend(min, max);
+  }
 
-    this.layers["_combined"] = layer;
-    layer.addTo(this.geojsonLayer);
-    this.geojsonLayer.addTo(this.map);
+  isSelectedArea(name) {
+    const { region, province } = this.selection;
+    if (this.activeBoundary === 'region') return !!region && name === region;
+    return province ? name === province : !!region && this.regionByProvince.get(name) === region;
+  }
+
+  selectArea(selection) {
+    this.selection = selection;
+    if (!this.geojsonLayer) return;
+    this.geojsonLayer.eachLayer(layer => {
+      layer.setStyle(this.areaStyle(layer.feature));
+      if (this.isSelectedArea(layer.feature.properties.name)) layer.bringToFront();
+    });
   }
 
   bindPopupArea(feature, layer, selectedFields) {
@@ -275,85 +250,57 @@ class MapManager {
       group: this.activeBoundary   // 'region' oppure 'province'
     });
 
-    layer.bindPopup(popupContent, {
-      maxWidth: 600,
-      minWidth: 400
+    const mapSize = this.map.getSize();
+    const popupWidth = Math.max(1, Math.min(480, mapSize.x - 54));
+    layer.bindPopup(popupContent.element ?? popupContent, {
+      className: 'homepage-area-popup',
+      maxWidth: popupWidth,
+      minWidth: Math.min(260, popupWidth),
+      maxHeight: Math.min(420, Math.max(120, Math.floor(mapSize.y * 0.72)))
     });
+    if (typeof popupContent.showChart === 'function') {
+      layer.on('popupopen', popupContent.showChart);
+      layer.on('popupclose', popupContent.hideChart);
+    }
   }
 
   getColor(value, min, max) {
-    if (!value || value <= 0 || isNaN(value)) return "transparent";
-    const denom = Math.max(1e-9, (max - min));
-    const t = (value - min) / denom; // [0..1]
-    const opacity = 0.2 + 0.6 * t;
-    // verde #22c55e → rgb(34, 197, 94)
-    return `rgba(34, 197, 94, ${opacity})`;
+    if (max === min) return MAP_COLORS[2];
+    const ratio = (value - min) / (max - min);
+    return MAP_COLORS[Math.min(MAP_COLORS.length - 1, Math.floor(ratio * MAP_COLORS.length))];
   }
 
-  // (rimasto per compatibilità – non usato nel nuovo flusso)
-  normalizeName(name) {
-    return name
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
-      .replace(/[^a-z]/g, '');
-  }
-
-  setupBoundaryToggle() {
-    const checkbox = document.getElementById('admin-boundary-switch');
-    const label = document.getElementById('admin-boundary-label');
-    if (!checkbox || !label) return;
-
-    // inizializza UI
-    checkbox.checked = (this.activeBoundary === 'province');
-    label.textContent = checkbox.checked ? 'Aggrega per province' : 'Aggrega per regioni';
-
-    checkbox.addEventListener('change', (e) => {
-      this.activeBoundary = e.target.checked ? 'province' : 'region';
-      label.textContent = e.target.checked ? 'Aggrega per province' : 'Aggrega per regioni';
-
-      // Ricalcolo le aggregazioni per il nuovo boundary
-      this.aggregateDataByArea();
-
-      // Prendo i filtri dalla dashboard se disponibile, altrimenti uso i correnti
-      const fields =
-        (window.dashboard && window.dashboard.selectedFields && window.dashboard.selectedFields.size)
-          ? [...window.dashboard.selectedFields]
-          : (this.currentFields || []);
-
-      // Redraw immediato con gli stessi filtri
-      this.updateMap(fields);
-
-      // (opzionale) tenere la lista in sync
-      if (window.dashboard) {
-        window.dashboard.rebuildSitesList();
-      }
+  updateLegend(min, max) {
+    document.getElementById('atlas-legend-title').textContent =
+      this.activeBoundary === 'province' ? 'Siti per provincia' : 'Siti per regione';
+    document.getElementById('min-val').textContent = min;
+    document.getElementById('max-val').textContent = max;
+    document.querySelectorAll('#gradient-bar span').forEach((swatch, index) => {
+      swatch.style.setProperty('--sample-color', MAP_COLORS[index]);
     });
+    const status = document.getElementById('atlas-map-status');
+    status.textContent = max ? '' : 'Nessun sito mappabile con questi filtri.';
+    status.hidden = max > 0;
+  }
+
+  setupBoundaryButtons() {
+    const buttons = document.querySelectorAll('[data-boundary]');
+    buttons.forEach(button => button.addEventListener('click', () => {
+      if (this.activeBoundary === button.dataset.boundary) return;
+      this.activeBoundary = button.dataset.boundary;
+      buttons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      this.updateMap();
+    }));
   }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   window.mapManager = new MapManager();
-  window.mapManager.setupBoundaryToggle();
+  window.mapManager.loadData().catch(error => {
+    const status = document.getElementById('atlas-map-status');
+    status.textContent = 'Impossibile caricare la cartografia. Ricarica la pagina per riprovare.';
+    status.hidden = false;
+    document.getElementById('atlas-count-caption').textContent = 'Dati non disponibili';
+    console.error('ARBOREA: caricamento della mappa', error);
+  });
 });
-
-// Gestione logo (come avevi)
-document.addEventListener('DOMContentLoaded', () => {
-  const toggleBtn = document.getElementById('map-logo-toggle');
-  const logoWrapper = document.getElementById('map-logo-wrapper');
-  const restoreBtn = document.getElementById('map-logo-restore');
-
-  if (toggleBtn && logoWrapper && restoreBtn) {
-    toggleBtn.addEventListener('click', () => {
-      logoWrapper.classList.add('hidden');
-      restoreBtn.classList.add('visible');
-    });
-
-    restoreBtn.addEventListener('click', () => {
-      logoWrapper.classList.remove('hidden');
-      restoreBtn.classList.remove('visible');
-    });
-  }
-});
-
-export { MapManager };

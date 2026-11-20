@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Spectral:wght@400;500;600;700&display=swap');
+
+:root { --arb-header-height: 62px; }
+arborea-header { display: block; position: relative; z-index: 1100; min-height: var(--arb-header-height); }
+.arb-header, .arb-header * { box-sizing: border-box; }
+.arb-header {
+  position: relative; height: var(--arb-header-height); display: flex; align-items: center; gap: clamp(12px, 2vw, 28px);
+  padding: 0 clamp(16px, 3vw, 44px); color: #202d29; background: #f7f7f2; border-bottom: 1px solid #d8dfd4;
+  font: 500 15px/1.25 'Instrument Sans', system-ui, sans-serif;
+}
+.arb-header a { color: inherit; text-decoration: none; }
+.arb-header .arb-brand { display: inline-flex; align-items: center; gap: 9px; color: #245344; font-size: 20px; font-weight: 700; letter-spacing: .025em; }
+.arb-header .arb-brand img { display: block; object-fit: contain; }
+.arb-header nav { margin-left: auto; display: flex; align-items: stretch; height: 100%; gap: clamp(5px, 1.5vw, 22px); }
+.arb-header nav a { display: grid; place-items: center; padding: 0 5px; white-space: nowrap; border-bottom: 3px solid transparent; }
+.arb-header nav a:is([aria-current], :hover) { color: #245344; border-color: #245344; }
+.arb-header nav a[aria-current] { font-weight: 700; }
+.arb-header :focus-visible { outline: 2px solid #a44e30; outline-offset: 3px; }
+.arb-header .arb-menu { display: none; }
+.arb-header-tools:empty { display: none; }
+.arb-webgis { margin: 0; }
+.arb-webgis #map, .arb-webgis #dashboard { height: calc(100dvh - var(--arb-header-height)); }
+.arb-webgis #dashboard { top: var(--arb-header-height); box-sizing: border-box; }
+.arb-webgis #cards-view.cards-view { top: var(--arb-header-height); }
+.arb-webgis #instrument-popup { top: calc(var(--arb-header-height) + 20px); }
+.arb-region #detail-container { height: calc(100dvh - var(--arb-header-height)); }
+.arb-download #rightFilters { top: calc(var(--arb-header-height) + 98px); max-height: calc(100dvh - var(--arb-header-height) - 112px); }
+@media (max-width: 830px) {
+  .arb-header .arb-menu { display: block; margin-left: auto; border: 1px solid #a4b5a5; border-radius: 7px; background: #fff; color: #245344; padding: 7px 12px; font: inherit; }
+  .arb-header nav { display: none; position: absolute; top: 100%; inset-inline: 0; height: auto; padding: 6px 16px 12px; background: #f7f7f2; border-bottom: 1px solid #c7d3c5; box-shadow: 0 9px 20px #202d2922; }
+  .arb-header .arb-menu[aria-expanded="true"] + nav { display: grid; gap: 0; }
+  .arb-header nav a { place-items: center start; min-height: 40px; padding-inline: 10px; border-bottom-width: 1px; }
+}

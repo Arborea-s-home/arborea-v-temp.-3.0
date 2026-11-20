@@ -1,0 +1,371 @@
+.arborea-home {
+  --atlas-paper: #f7f7f2;
+  --atlas-ink: #202d29;
+  --atlas-muted: #53655b;
+  --atlas-line: #d8dfd4;
+  --atlas-action: #245344;
+  --atlas-sage: #e3ebdf;
+  --atlas-accent: #bc5a38;
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  background: var(--atlas-paper);
+  color: var(--atlas-ink);
+  font: 400 15px/1.35 "Instrument Sans", system-ui, sans-serif;
+}
+
+.arborea-home h1, .arborea-home #atlas-distribution h2,
+.arborea-home #atlas-timeline-title, .arborea-home .atlas-count {
+  font-family: Spectral, Georgia, serif;
+}
+
+.arborea-home button, .arborea-home input { font: inherit; }
+.arborea-home button { cursor: pointer; color: inherit; }
+.arborea-home [hidden] { display: none !important; }
+.arborea-home :is(button, a, input):focus-visible {
+  outline: 2px solid var(--atlas-accent);
+  outline-offset: 2px;
+}
+.arborea-home .atlas-header {
+  z-index: 2;
+  min-height: 62px;
+  padding: 0 clamp(16px, 2.2vw, 36px);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 1px solid var(--atlas-line);
+}
+.arborea-home .atlas-brand {
+  color: #173e32;
+  font-size: 21px;
+  letter-spacing: .06em;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+}
+.arborea-home .atlas-brand img { object-fit: contain; }
+.arborea-home .atlas-header-section {
+  padding-left: 19px;
+  border-left: 1px solid #91a197;
+}
+.arborea-home .atlas-guide {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: 0;
+  padding: 7px 3px 7px 9px;
+  font-weight: 600;
+}
+.arborea-home .atlas-guide span {
+  border: 1px solid;
+  border-radius: 50%;
+  min-width: 17px;
+  height: 17px;
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+}
+.arborea-home .atlas-layout {
+  display: grid;
+  grid-template-columns: clamp(320px, 25vw, 430px) minmax(0, 1fr);
+  min-height: 0;
+}
+.arborea-home #sidebar {
+  position: static;
+  z-index: auto;
+  width: auto;
+  height: auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 19px clamp(17px, 1.7vw, 28px) 22px;
+  border: 0;
+  border-right: 1px solid var(--atlas-line);
+  background: var(--atlas-paper);
+  box-shadow: none;
+}
+.arborea-home .atlas-intro p { margin: 0; font-size: 14px; }
+.arborea-home h1 { margin: 1px 0 8px; font-size: clamp(31px, 3vw, 45px); line-height: 1.05; letter-spacing: -.025em; }
+.arborea-home .atlas-summary { display: flex; gap: 12px; align-items: center; justify-content: space-between; }
+.arborea-home .atlas-count { display: block; line-height: 1; font-size: clamp(29px, 3vw, 42px); white-space: nowrap; }
+.arborea-home .atlas-count-caption { color: var(--atlas-muted); display: block; font-size: 11px; margin-top: 4px; }
+.arborea-home .atlas-primary {
+  border-radius: 5px;
+  background: var(--atlas-action);
+  padding: 8px 12px;
+  text-align: center;
+  white-space: nowrap;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.arborea-home .atlas-primary:hover { background: #123e31; }
+.arborea-home .atlas-link-arrow {
+  display: inline-block; width: .65em; height: .65em; margin-left: .15em;
+  border-top: 1px solid currentColor; border-right: 1px solid currentColor;
+  background: linear-gradient(135deg, transparent 45%, currentColor 45% 54%, transparent 54%);
+}
+.arborea-home .atlas-filters { border-top: 1px solid var(--atlas-line); margin-top: 15px; padding-top: 10px; }
+.arborea-home #atlas-filters-title { font-size: 15px; margin: 0 0 8px; font-weight: 700; }
+.arborea-home #ambito-buttons { display: grid; gap: 5px; }
+.arborea-home .atlas-filter {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 31px;
+  padding: 4px 11px;
+  overflow: hidden;
+  border: 1px solid #aebeaa;
+  border-radius: 5px;
+  background: #ebeee5;
+  font-weight: 700;
+  text-align: left;
+  font-size: 13px;
+}
+.arborea-home .atlas-filter::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 auto 0 0;
+  width: var(--fill, 0%);
+  background: #b3c9a5;
+  transition: width .2s, background-color .2s;
+}
+.arborea-home .atlas-filter[aria-pressed="false"] { color: var(--atlas-muted); border-color: #d0d4ce; background: #f2f1eb; }
+.arborea-home .atlas-filter[aria-pressed="false"]::before { background: #d7dbd2; }
+.arborea-home .atlas-filter:hover { border-color: var(--atlas-action); }
+.arborea-home .atlas-filter-count { font-size: 12px; font-variant-numeric: tabular-nums; }
+.arborea-home #mapped-sites-list { margin-top: 13px; font-family: inherit; }
+.arborea-home #mapped-sites-container { margin: 0; padding: 0; border: 0; }
+.arborea-home .atlas-mode {
+  display: flex;
+  padding: 2px;
+  border: 1px solid var(--atlas-line);
+  background: var(--atlas-paper);
+  border-radius: 6px;
+}
+.arborea-home .atlas-mode button {
+  flex: 1;
+  padding: 4px 9px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.arborea-home .atlas-mode button[aria-pressed="true"] { background: #cddbc7; color: #183d31; font-weight: 700; }
+.arborea-home .atlas-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid var(--atlas-line);
+  border-radius: 5px;
+  padding: 4px 9px;
+  margin: 10px 0 6px;
+}
+.arborea-home .atlas-search-icon {
+  width: 9px;
+  height: 9px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  position: relative;
+}
+.arborea-home .atlas-search-icon::after { content: ""; position: absolute; width: 5px; height: 1px; background: currentColor; transform: rotate(45deg); top: 9px; left: 7px; }
+.arborea-home .atlas-search input { min-width: 0; width: 100%; padding: 3px; border: 0; background: transparent; color: inherit; font-size: 13px; }
+.arborea-home .atlas-region { border-bottom: 1px solid var(--atlas-line); padding: 3px 0 7px; }
+.arborea-home .atlas-region-head { display: flex; align-items: center; gap: 5px; }
+.arborea-home .atlas-region-toggle {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 2px;
+  background: none;
+  border: 0;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 700;
+}
+.arborea-home .atlas-region-toggle .atlas-region-count { margin-left: auto; font-size: 12px; font-weight: 500; }
+.arborea-home .atlas-region-head > a { text-decoration: none; color: var(--atlas-action); padding: 3px; font-size: 14px; }
+.arborea-home .atlas-province-bar { display: flex; gap: 2px; margin-left: 14px; overflow-x: auto; padding: 2px; }
+.arborea-home .atlas-province-bar button {
+  flex: var(--size) 0 22px;
+  min-width: 0;
+  height: 25px;
+  overflow: hidden;
+  text-overflow: clip;
+  background: var(--province-color);
+  color: #fff;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 10px;
+  padding: 0 2px;
+}
+.arborea-home .atlas-province-bar button[aria-pressed="true"] { border-color: #102b23; box-shadow: inset 0 0 0 1px #fff; }
+.arborea-home .atlas-site-results { margin: 2px 0 3px 20px; }
+.arborea-home .atlas-site-results h3 { margin: 7px 0 2px; font-size: 13px; color: #183d31; }
+.arborea-home .atlas-site-results h3 a { color: inherit; }
+.arborea-home .atlas-site-results ul { margin: 2px 0; padding: 0; list-style: none; font-size: 13px; }
+.arborea-home .atlas-site-results li { border-bottom: 1px solid var(--atlas-line); padding: 4px 0; }
+.arborea-home .atlas-site-results li:last-child { border-bottom: 0; }
+.arborea-home .atlas-site-results li a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.arborea-home .atlas-empty { padding: 10px 0; color: var(--atlas-muted); font-size: 13px; }
+.arborea-home #atlas-distribution { padding-top: 10px; }
+.arborea-home #atlas-distribution h2 { margin: 0 0 3px; font-size: 25px; }
+.arborea-home .atlas-back { padding: 0 0 3px; background: none; border: 0; font-size: 12px; color: var(--atlas-action); text-decoration: underline; }
+.arborea-home .atlas-distribution-main {
+  display: grid;
+  grid-template-columns: minmax(124px, 1.05fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 6px;
+}
+.arborea-home .atlas-donut-wrap { aspect-ratio: 1; position: relative; min-width: 0; }
+.arborea-home .atlas-donut-wrap canvas { position: absolute; inset: 0; display: block; }
+.arborea-home .atlas-donut-center {
+  position: absolute;
+  inset: 24%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  pointer-events: none;
+  gap: 2px;
+  font-size: 11px;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+.arborea-home .atlas-donut-center strong { font: 700 clamp(24px, 2.1vw, 36px)/1 Spectral, Georgia, serif; }
+.arborea-home .atlas-donut-key { margin: 2px 0 0; padding: 0; list-style: none; min-width: 0; }
+.arborea-home .atlas-donut-key button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 5px;
+  min-height: 22px;
+  padding: 1px 4px;
+  font-size: 11px;
+  border: 0;
+  text-align: left;
+  background: transparent;
+  border-radius: 4px;
+}
+.arborea-home .atlas-donut-key button:hover,
+.arborea-home .atlas-donut-key button[aria-pressed="true"] { background: var(--atlas-sage); }
+.arborea-home .atlas-donut-key button[aria-pressed="true"] { font-weight: 700; }
+.arborea-home .atlas-donut-key i { width: 9px; height: 9px; flex: 0 0 9px; border-radius: 50%; background: var(--province-color); }
+.arborea-home .atlas-donut-key b { margin-left: auto; font-variant-numeric: tabular-nums; }
+.arborea-home .atlas-distribution-links { margin: 7px 0; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.arborea-home .atlas-distribution-links a { color: var(--atlas-action); font-size: 12px; }
+.arborea-home .atlas-sidebar-foot { border-top: 1px solid var(--atlas-line); margin-top: 14px; padding-top: 8px; font-size: 12px; color: var(--atlas-muted); }
+.arborea-home .atlas-sidebar-foot > a { display: block; margin-bottom: 8px; color: var(--atlas-action); }
+.arborea-home .atlas-sidebar-foot .credits--panel { margin: 0; }
+.arborea-home .atlas-sidebar-foot summary { cursor: pointer; font-weight: 700; color: #fff; }
+.arborea-home .atlas-sidebar-foot summary:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.arborea-home .atlas-sidebar-foot .contact-info a { color: #c6f6d5; }
+
+.arborea-home #map-wrapper { position: relative; min-width: 0; min-height: 0; display: grid; grid-template-rows: minmax(220px, 1fr) auto; }
+.arborea-home .atlas-map-frame { position: relative; min-width: 0; min-height: 0; }
+.arborea-home #map { inset: 0; z-index: 1; background: #dce4df; }
+.arborea-home .atlas-boundary, .arborea-home #legend {
+  position: absolute;
+  z-index: 2;
+  border: 1px solid #cdd7cc;
+  background: #f7f7f2f5;
+  box-shadow: 0 2px 6px #23392b16;
+  border-radius: 5px;
+}
+.arborea-home .atlas-boundary { display: flex; align-items: center; gap: 7px; top: 13px; right: 13px; padding: 4px 5px 4px 8px; }
+.arborea-home .atlas-boundary > span { font-size: 12px; }
+.arborea-home .atlas-boundary .atlas-mode button { font-size: 12px; padding: 3px 5px; }
+.arborea-home #legend { left: 14px; bottom: 14px; margin: 0; padding: 9px 10px 7px; min-width: 142px; pointer-events: none; }
+.arborea-home #atlas-legend-title { font: 700 13px/1.2 "Instrument Sans", sans-serif; margin: 0 0 6px; }
+.arborea-home #gradient-bar {
+  display: flex; gap: 2px; min-height: 13px; height: auto;
+  background: none; border: 0; border-radius: 0; margin: 0 0 4px;
+}
+.arborea-home #gradient-bar span { flex: 1; background: var(--sample-color); }
+.arborea-home #range-values { font-size: 10px; color: var(--atlas-ink); font-variant-numeric: tabular-nums; }
+.arborea-home #atlas-map-status {
+  position: absolute; z-index: 2; top: 62px; left: 50%; transform: translateX(-50%);
+  margin: 0; padding: 5px 9px; border-radius: 4px; background: var(--atlas-paper); box-shadow: 0 2px 6px #23392b24;
+  width: max-content; max-width: calc(100% - 26px); box-sizing: border-box; font-size: 13px;
+}
+.arborea-home .atlas-map-label.leaflet-tooltip {
+  background: transparent; border: 0; box-shadow: none; margin: 0; padding: 0;
+  color: #172d20; text-shadow: 0 0 3px #fff, 0 0 2px #fff; font: 700 17px/1 Spectral, Georgia, serif;
+}
+.arborea-home .atlas-map-label::before { display: none; }
+.arborea-home .homepage-area-popup .dettaglio-btn { background: var(--atlas-action); font: 700 14px "Instrument Sans", sans-serif; }
+
+.arborea-home #timeline-container { padding: 10px 16px 11px; border-top: 1px solid var(--atlas-line); min-width: 0; position: relative; }
+.arborea-home .timeline-controls { display: flex; gap: 8px 14px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
+.arborea-home #atlas-timeline-title { font-size: 21px; line-height: 1.1; margin: 0; }
+.arborea-home .atlas-period { border-left: 1px solid var(--atlas-line); padding-left: 12px; margin: 0; font-size: 12px; }
+.arborea-home .atlas-undated { margin-left: auto; display: flex; gap: 6px; align-items: center; font-size: 12px; }
+.arborea-home .atlas-undated input { accent-color: var(--atlas-action); }
+.arborea-home .atlas-timeline-scroll { overflow-x: auto; padding: 2px 2px 3px; }
+.arborea-home .atlas-timeline-track { min-width: 560px; }
+.arborea-home .timeline-bars, .arborea-home .timeline-axis {
+  display: grid; grid-template-columns: repeat(var(--phase-count, 14), minmax(0, 1fr)); gap: 5px;
+}
+.arborea-home .timeline-bars { height: 48px; align-items: end; border-bottom: 1px solid #99ac94; }
+.arborea-home .timeline-bar { background: #dfe6da; border: 1px solid #bac9b6; border-bottom: 0; min-height: 2px; box-sizing: border-box; }
+.arborea-home .timeline-bar.in-range { background: #bfd0b4; border-color: #819f7a; }
+.arborea-home .timeline-tick { text-align: center; padding: 3px 0; border: 0; background: none; min-height: 29px; color: var(--atlas-muted); font-size: 10px; line-height: 1.1; overflow-wrap: anywhere; }
+.arborea-home .timeline-tick.in-range { color: var(--atlas-ink); }
+.arborea-home .timeline-tick:hover { background: var(--atlas-sage); }
+.arborea-home .timeline-sliders { height: 21px; position: relative; margin: 0 1px; }
+.arborea-home .tutorial-box {
+  box-sizing: border-box;
+  width: min(410px, calc(100% - 40px));
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  background: var(--atlas-paper);
+}
+.arborea-home .tutorial-title { color: var(--atlas-action); font-family: Spectral, Georgia, serif; }
+.arborea-home .tutorial-highlight { border-color: var(--atlas-action); }
+.arborea-home .tutorial-highlight::after, .arborea-home .tutorial-next { background-color: var(--atlas-action); }
+.arborea-home .atlas-range-line {
+  position: absolute; inset: 9px 7px auto; height: 4px; border-radius: 4px;
+  background: linear-gradient(to right, #ccd7c9 0 var(--range-start, 0%), var(--atlas-action) var(--range-start, 0%) var(--range-end, 100%), #ccd7c9 var(--range-end, 100%));
+}
+.arborea-home .timeline-sliders input {
+  appearance: none; position: absolute; inset: 0; width: 100%; height: 21px; margin: 0; background: transparent; pointer-events: none;
+}
+.arborea-home .timeline-sliders input:focus-visible, .arborea-home .timeline-sliders .timeline-front { z-index: 1; }
+.arborea-home .timeline-sliders input::-webkit-slider-thumb {
+  appearance: none; width: 15px; height: 15px; border: 1px solid #91a38d; background: var(--atlas-paper); border-radius: 50%; pointer-events: auto; cursor: ew-resize;
+}
+.arborea-home .timeline-sliders input::-moz-range-thumb {
+  width: 13px; height: 13px; border: 1px solid #91a38d; background: var(--atlas-paper); border-radius: 50%; pointer-events: auto; cursor: ew-resize;
+}
+
+@media (max-width: 850px) {
+  .arborea-home { height: auto; min-height: 100dvh; display: block; }
+  .arborea-home .atlas-layout { grid-template-columns: minmax(0, 1fr); }
+  .arborea-home #sidebar { border: 0; border-bottom: 1px solid var(--atlas-line); max-height: min(75vh, 680px); }
+  .arborea-home #map-wrapper { grid-template-rows: minmax(320px, 56vh) auto; }
+  .arborea-home .atlas-distribution-main { grid-template-columns: minmax(124px, 210px) minmax(0, 1fr); gap: 12px; max-width: 460px; }
+}
+@media (max-width: 480px) {
+  .arborea-home .atlas-header { min-height: 53px; gap: 12px; }
+  .arborea-home .atlas-header-section { padding-left: 12px; }
+  .arborea-home .atlas-boundary > span { display: none; }
+  .arborea-home .atlas-undated { margin-left: 0; }
+  .arborea-home #legend { bottom: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arborea-home .atlas-filter::before { transition: none; }
+}

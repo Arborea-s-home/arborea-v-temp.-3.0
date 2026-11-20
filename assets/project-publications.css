@@ -1,0 +1,12 @@
+#publications { scroll-margin-top: 20px; }
+#publications .project-publications { margin: 0 0 1rem; padding-inline-start: 1.55rem; }
+#publications .project-publications li {
+  padding: .8rem 0;
+  border-bottom: 1px solid #d8dfd4;
+  scroll-margin-top: 20px;
+}
+#publications .project-publications li:target {
+  background: #eef3e9;
+  box-shadow: 0 0 0 5px #eef3e9;
+}
+#publications a { color: #245344; text-underline-offset: .2em; }

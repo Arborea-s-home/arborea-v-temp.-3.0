@@ -1,313 +1,107 @@
-// info.js — paths via getPath, smooth scroll bottom-nav, scrollspy, tooltips globali, biblio (5 per pagina)
-import { getPath } from "../path_utils.js";
-
-document.addEventListener("DOMContentLoaded", () => {
-  /* =========================
-     Paths & immagini (data-src)
-     ========================= */
-  const homeLink = document.getElementById("home-link");
-  if (homeLink) homeLink.href = getPath("index.html");
-
-  document.querySelectorAll("[data-href]").forEach(el => {
-    const rel = el.getAttribute("data-href");
-    if (rel) el.setAttribute("href", getPath(rel));
-  });
-
-  document.querySelectorAll("img[data-src]").forEach(img => {
-    const rel = img.getAttribute("data-src");
-    if (rel) img.src = getPath(rel);
-  });
-
-  /* =========================
-     Print button (bottom-nav)
-     ========================= */
-  const printBtn = document.getElementById("nav-print");
-  if (printBtn) printBtn.addEventListener("click", () => window.print());
-
-  /* =========================
-     Smooth scroll (bottom-nav)
-     ========================= */
-  document.querySelectorAll('.bottom-nav a[href^="#"]').forEach(a => {
-    a.addEventListener('click', e => {
-      const href = a.getAttribute('href');
-      const target = href ? document.querySelector(href) : null;
-      if (target) {
-        e.preventDefault();
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
-  });
-
-  /* =========================
-     Scrollspy: active icon
-     ========================= */
-  const navLinks = Array.from(document.querySelectorAll('.bottom-nav a.bn[href^="#"]'));
-  const navTargets = navLinks
-    .map(a => document.querySelector(a.getAttribute('href')))
-    .filter(Boolean);
-
-  if (navLinks.length && navTargets.length) {
-    const spy = new IntersectionObserver((entries) => {
-      const visible = entries
-        .filter(e => e.isIntersecting)
-        .sort((a, b) => (b.intersectionRatio || 0) - (a.intersectionRatio || 0))[0];
-
-      if (!visible) return;
-
-      const id = visible.target.id;
-      navLinks.forEach(a => {
-        a.classList.toggle('active', a.getAttribute('href') === `#${id}`);
-      });
-    }, { rootMargin: "-25% 0px -65% 0px", threshold: [0.01, 0.1, 0.25] });
-
-    navTargets.forEach(s => spy.observe(s));
+const entities = {
+  brain: {
+    name: "BRAIN site",
+    description: "The external BRAIN record to which an ARBOREA site can refer.",
+    fields: [
+      ["Identifier", "The BRAIN site code retained by ARBOREA as brain_ID."],
+      ["Site name", "The place name as recorded by BRAIN."]
+    ],
+    relationship: "The BRAIN code provides a reference across the two databases."
+  },
+  site: {
+    name: "ARBOREA site",
+    description: "The archaeological complex that brings its contexts together.",
+    fields: [
+      ["Identifier and name", "ARBOREA site identifier and recorded place name."],
+      ["BRAIN reference", "External site identifier, where available."],
+      ["Location", "Coordinates, region and province."],
+      ["Site description", "Typology, chronological phases and descriptive information."]
+    ],
+    relationship: "One site may contain multiple archaeological contexts."
+  },
+  context: {
+    name: "Archaeological context",
+    description: "The archaeological unit to which an occurrence is assigned.",
+    fields: [
+      ["Identity and hierarchy", "context_name, site_id and parent_id describe the context and its place in the hierarchy."],
+      ["Dating", "chron_orig records the source dating. Chronological terms are linked separately."],
+      ["Provenance", "Typology, notes, spatial precision, geometry and source information where available."]
+    ],
+    relationship: "A context may have sub-contexts, several occurrences and several chronological links."
+  },
+  occurrence: {
+    name: "Botanical occurrence",
+    description: "A botanical determination recorded in the samples table and associated with its archaeological provenance.",
+    fields: [
+      ["Provenance", "context_id links the occurrence to its context. sample_number retains the source sample reference, when available."],
+      ["Identification", "The original taxon name, determination qualifiers and reference to the taxon vocabulary."],
+      ["Material", "s_type, s_part and s_foss describe the remain type, plant part and preservation."],
+      ["Reported evidence", "quantity, qt, entity and weight_g capture different forms of reporting. Records may also carry notes, AMS information and photographs."]
+    ],
+    relationship: "Multiple occurrences may derive from one physical sample. Several occurrences can share a taxon entry."
+  },
+  chronology: {
+    name: "Chronology",
+    description: "Controlled terms used to record archaeological periods and their subdivisions.",
+    fields: [
+      ["Term and hierarchy", "An ICCD label, level and parent term where applicable."],
+      ["Date range", "Start and end values associated with the term."],
+      ["Provenance", "Authority, source and publication year where documented."]
+    ],
+    relationship: "The context_chrono association supports many-to-many links between contexts and chronological terms."
+  },
+  taxon: {
+    name: "Taxon thesaurus",
+    description: "Reference entries used to associate botanical records with taxonomic names.",
+    fields: [
+      ["Name and rank", "Taxon, Family, genus, specie and subspecie describe the identification at the recorded level."],
+      ["Additional information", "Taxonomic authorship, common names and notes where recorded."]
+    ],
+    relationship: "An occurrence retains its source identification alongside its vocabulary link."
+  },
+  bibliography: {
+    name: "Bibliography",
+    description: "References used to document the evidence and its provenance.",
+    fields: [
+      ["Citation", "Author, year, title and publication details."],
+      ["Supporting information", "Pages and document references where recorded."],
+      ["Associations", "Bibliographic linking records contain identifiers for contexts, occurrences and sources as applicable."]
+    ],
+    relationship: "One publication can document several records. Site records can also provide additional contextual reading."
   }
+};
 
-  /* =========================
-     Bottom-nav: si solleva sopra al footer quando necessario
-     ========================= */
-  const bottomNav = document.querySelector('.bottom-nav');
-  const footer = document.querySelector('.page-footer');
+const inspector = document.querySelector("#entity-detail");
+const entityButtons = Array.from(document.querySelectorAll("[data-entity]"));
 
-  function updateNavLift(){
-    if (!bottomNav || !footer) return;
-
-    const footerTop = footer.getBoundingClientRect().top;
-    const navRect = bottomNav.getBoundingClientRect();
-    const navH = navRect.height;
-
-    // distanza "base" dal fondo (coerente col CSS)
-    const baseBottom = 12;
-
-    // punto in cui la nav inizierebbe a sovrapporsi al footer
-    const overlap = (window.innerHeight - baseBottom) - footerTop;
-
-    // se overlap > 0: solleva la nav di overlap
-    const lift = overlap > 0 ? -Math.ceil(overlap) : 0;
-
-    bottomNav.style.setProperty('--nav-shift', `${lift}px`);
+function showEntity(button) {
+  const entity = entities[button.dataset.entity];
+  const title = document.createElement("h3");
+  title.textContent = entity.name;
+  const description = document.createElement("p");
+  description.textContent = entity.description;
+  const fields = document.createElement("dl");
+  for (const [label, value] of entity.fields) {
+    const field = document.createElement("div");
+    const term = document.createElement("dt");
+    term.textContent = label;
+    const details = document.createElement("dd");
+    details.textContent = value;
+    field.append(term, details);
+    fields.append(field);
   }
+  const relationship = document.createElement("p");
+  relationship.className = "relationship";
+  relationship.textContent = entity.relationship;
+  inspector.replaceChildren(title, description, fields, relationship);
+  for (const item of entityButtons) item.setAttribute("aria-pressed", String(item === button));
+}
 
-  updateNavLift();
-  window.addEventListener('scroll', updateNavLift, { passive: true });
-  window.addEventListener('resize', updateNavLift);
+for (const button of entityButtons) button.addEventListener("click", () => showEntity(button));
+showEntity(document.querySelector('[data-entity="site"]'));
 
-  /* =========================
-     Animazioni on-scroll
-     ========================= */
-  const observer = new IntersectionObserver(
-    entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('animate'); }),
-    { threshold: 0.12 }
-  );
-  document
-    .querySelectorAll('.intro-card, .explanation-card, .future-card, .person-card, .logo-card')
-    .forEach(el => observer.observe(el));
-
-  /* =========================
-     Expand/collapse Data Model
-     ========================= */
-  document.querySelectorAll('.table-card').forEach(card => {
-    card.addEventListener('click', (e) => {
-      const t = e.target;
-      if (t && t.classList && (t.classList.contains('q') || t.classList.contains('qh'))) return;
-      card.classList.toggle('open');
-    });
-  });
-
-  /* =========================
-     Tooltip GLOBALI per i “?” (hover + click)
-     ========================= */
-  const tipEl = document.getElementById('dm-tooltip');
-  let currentTarget = null;
-
-  function showTip(btn){
-    if (!tipEl || !btn) return;
-    currentTarget = btn;
-    tipEl.textContent = btn.getAttribute('data-tip') || '';
-    tipEl.setAttribute('aria-hidden','false');
-    requestAnimationFrame(() => positionTip(btn));
-  }
-
-  function hideTip(){
-    if (!tipEl) return;
-    currentTarget = null;
-    tipEl.setAttribute('aria-hidden','true');
-    tipEl.style.transform = 'translate(-9999px,-9999px)';
-  }
-
-  function positionTip(btn){
-    if(!btn || !tipEl || tipEl.getAttribute('aria-hidden') === 'true') return;
-
-    const rect = btn.getBoundingClientRect();
-    const padding = 10;
-
-    const tipRect = tipEl.getBoundingClientRect();
-    const tipW = Math.min(tipRect.width || 320, 320);
-    const tipH = tipRect.height || 60;
-
-    let left = rect.left;
-    let top  = rect.bottom + 10;
-
-    if (left + tipW + padding > window.innerWidth) {
-      left = Math.max(padding, window.innerWidth - tipW - padding);
-    }
-    if (left < padding) left = padding;
-
-    if (top + tipH + padding > window.innerHeight) {
-      top = Math.max(padding, rect.top - tipH - 10);
-    }
-
-    tipEl.style.transform = `translate(${Math.round(left)}px, ${Math.round(top)}px)`;
-  }
-
-  document.querySelectorAll('.q, .qh').forEach(b=>{
-    b.addEventListener('mouseenter', ()=>showTip(b));
-    b.addEventListener('mouseleave', ()=>hideTip());
-    b.addEventListener('focus', ()=>showTip(b));
-    b.addEventListener('blur', ()=>hideTip());
-
-    b.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (currentTarget === b) hideTip();
-      else showTip(b);
-    });
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.q, .qh')) hideTip();
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') hideTip();
-  });
-
-  window.addEventListener('scroll', ()=>positionTip(currentTarget), {passive:true});
-  window.addEventListener('resize', ()=>positionTip(currentTarget));
-
-  /* =========================
-     Bibliografia (CSV → tabella, 5 per pagina)
-     ========================= */
-  const BIB_PATH = getPath("data/biblio.csv");
-  const $wrap  = document.getElementById('bib-table-wrap');
-  const $search= document.getElementById('bib-search');
-  const $pager = document.getElementById('bib-pagination');
-  const PAGE_SIZE = 5;
-
-  let bibRows = [], filtered = [], page = 1;
-
-  const esc = s => String(s ?? '').replace(/[&<>]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch]));
-
-  function parseCSV(text){
-    const rows=[]; let i=0,cur="",inQ=false; const out=[];
-    const pushCell=()=>{out.push(cur);cur=""};
-    const pushRow=()=>{rows.push(out.slice());out.length=0};
-
-    for(;i<text.length;i++){
-      const ch=text[i];
-      if(inQ){
-        if(ch==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else inQ=false; }
-        else cur+=ch;
-      }else{
-        if(ch==='"') inQ=true;
-        else if(ch===',') pushCell();
-        else if(ch==='\n'){ pushCell(); pushRow(); }
-        else if(ch==='\r'){}
-        else cur+=ch;
-      }
-    }
-    pushCell();
-    if(out.length>1 || (out.length===1 && out[0]!=='')) pushRow();
-    if(!rows.length) return [];
-    const header = rows[0].map(h=>String(h).trim());
-    return rows.slice(1).map(r=>{ const o={}; header.forEach((h,idx)=>o[h]=r[idx]??''); return o; });
-  }
-
-  function renderTable(){
-    if(!$wrap) return;
-
-    const start=(page-1)*PAGE_SIZE;
-    const slice=filtered.slice(start, start+PAGE_SIZE);
-
-    const html = [
-      `<table class="styled-table"><thead><tr>
-        <th>Authors</th><th>Year</th><th>Title</th><th>Published In</th><th>Pages</th><th>DOI / ISBN</th>
-      </tr></thead><tbody>`,
-      ...slice.map(r=>{
-        const aut = r.autori || r.author || "";
-        const yr  = r.anno || r.year || "";
-        const tit = r.titolo || r.title || "";
-        const ed  = r.edito_in || r.edit_in || "";
-        const pg  = r.pagine || r.pages || "";
-
-        const doi = (r.doi||"").trim();
-        const isbn= (r.isbn||"").trim();
-
-        const idcol=[
-          doi ? `<a href="https://doi.org/${esc(doi)}" target="_blank" rel="noopener">${esc(doi)}</a>` : "",
-          esc(isbn)
-        ].filter(Boolean).join(' &middot; ');
-
-        return `<tr>
-          <td>${esc(aut)}</td>
-          <td>${esc(yr)}</td>
-          <td>${esc(tit)}</td>
-          <td>${esc(ed)}</td>
-          <td>${esc(pg)}</td>
-          <td>${idcol}</td>
-        </tr>`;
-      }),
-      `</tbody></table>`
-    ].join('');
-
-    $wrap.innerHTML = html;
-
-    const totalPages = Math.max(1, Math.ceil(filtered.length/PAGE_SIZE));
-    const mkBtn=(lbl,p,dis=false,act=false)=>`<button ${dis?'disabled':''} data-p="${p}" class="${act?'active':''}">${lbl}</button>`;
-    const btns=[];
-    btns.push(mkBtn('Prev', Math.max(1,page-1), page===1));
-
-    const MAX_SHOWN = 6;
-    const showFirst = Math.max(1, Math.min(page-2, Math.max(1, totalPages-MAX_SHOWN+1)));
-
-    for(let p=showFirst; p<=totalPages && p<showFirst+MAX_SHOWN; p++){
-      btns.push(mkBtn(String(p), p, false, p===page));
-    }
-
-    if(totalPages>showFirst+MAX_SHOWN-1) btns.push('<span>…</span>', mkBtn(String(totalPages), totalPages, false, page===totalPages));
-
-    btns.push(mkBtn('Next', Math.min(totalPages, page+1), page===totalPages));
-
-    if ($pager) {
-      $pager.innerHTML = btns.join('');
-      $pager.querySelectorAll('button[data-p]').forEach(b=>b.addEventListener('click', ()=>{
-        page=parseInt(b.dataset.p||'1',10);
-        renderTable();
-      }));
-    }
-  }
-
-  function applyFilter(){
-    const q=($search?.value||'').toLowerCase();
-    filtered = bibRows.filter(r=>{
-      const hay=[
-        r.autori,r.anno,r.titolo,r.edito_in,r.editore,r.nome_completo,r.doi,r.isbn,
-        r.title,r.author,r.edit_in
-      ].map(x=>String(x||'').toLowerCase()).join(' ');
-      return hay.includes(q);
-    });
-    page=1;
-    renderTable();
-  }
-
-  if($wrap && $search){
-    fetch(BIB_PATH).then(r=>r.text()).then(txt=>{
-      bibRows = parseCSV(txt);
-      filtered = bibRows.slice();
-      renderTable();
-      $search.addEventListener('input', applyFilter);
-    }).catch(()=>{
-      $wrap.innerHTML = '<p style="opacity:.7">Bibliography not available.</p>';
-    });
-  }
-});
+for (const picture of document.querySelectorAll(".portrait img")) {
+  const hideFailedImage = () => { picture.hidden = true; };
+  picture.addEventListener("error", hideFailedImage);
+  if (picture.complete && !picture.naturalWidth) hideFailedImage();
+}

@@ -1,0 +1,35 @@
+.taxon-options { min-width: 0; color: #23372e; font: 400 .95rem/1.35 system-ui, sans-serif; }
+.taxon-options-tools { display: flex; align-items: end; gap: .65rem; flex-wrap: wrap; padding-block: .5rem; }
+.taxon-options-search { display: grid; flex: 1 1 15rem; gap: .25rem; min-width: 0; font-weight: 600; }
+.taxon-options-search input { width: 100%; min-width: 0; border: 1px solid #abc1af; border-radius: .45rem; padding: .5rem; font: inherit; }
+.taxon-options-status { align-self: center; color: #39564a; }
+.taxon-option-cards { display: grid; grid-template-columns: minmax(0, 1fr); gap: .45rem; }
+.taxon-option-family { min-width: 0; padding: .55rem; border: 1px solid #c7d7c7; border-radius: .65rem; background: #f6faf4; }
+.taxon-options button { display: inline-flex; align-items: center; justify-content: start; gap: .4rem; padding: .35rem .5rem; border: 1px solid #c5d4c7; border-radius: .5rem; background: #fff; color: #23372e; text-align: left; cursor: pointer; font: inherit; overflow-wrap: anywhere; }
+.taxon-options button:hover, .taxon-options button:focus-visible { border-color: #245344; }
+.taxon-options button:disabled { opacity: .55; cursor: default; }
+.taxon-options button[aria-pressed="true"] { background: #245344; border-color: #245344; color: #fff; }
+.taxon-options button[aria-pressed="mixed"] { background: #e1eee2; border-color: #78a283; }
+.taxon-option-family-button { width: 100%; }
+.taxon-option-family-button span { font-weight: 650; font-style: normal; }
+.taxon-option-category span, .taxon-option-exact span { font-style: italic; }
+.taxon-options img { width: 1.95rem; height: 1.95rem; object-fit: contain; border-radius: 50%; background: white; flex: none; }
+.taxon-option-children { display: grid; gap: .4rem; margin-top: .45rem; }
+.taxon-option-category, .taxon-option-exact { width: 100%; }
+.taxon-option-details { margin: .2rem 0 0 .4rem; }
+.taxon-option-details summary { font-size: .84rem; cursor: pointer; color: #386050; }
+.taxon-option-details .taxon-option-exact { margin-top: .2rem; font-size: .88rem; }
+.cf-fullpanel-body.taxon-options { display: block; }
+
+.taxon-option-family-row { display: grid; grid-template-columns: minmax(0,1fr) 2.7rem; gap: .4rem; }
+.taxon-options .taxon-option-expand { justify-content: center; }
+.taxon-option-expand::after { content: ""; width: .46rem; height: .46rem; border: solid currentColor; border-width: 0 2px 2px 0; transform: rotate(-45deg); }
+.taxon-option-expand[aria-expanded="true"]::after { transform: translateY(-.15rem) rotate(45deg); }
+.taxon-option-children[hidden] { display: none; }
+.taxon-option-children { padding-inline-start: .75rem; border-inline-start: 2px solid #d7e4d7; }
+.taxon-options-frequency .taxon-option-cards {grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+.taxon-options-frequency .taxon-option-family-button {background:hsl(151 35% var(--heat-light));color:var(--heat-ink);border-color:transparent}
+.taxon-options-frequency .taxon-option-family-button[aria-pressed="true"],.taxon-options-frequency .taxon-option-family-button[aria-pressed="mixed"] {outline:2px solid #a96431;outline-offset:1px}
+.taxon-frequency {margin-left:auto;font-variant-numeric:tabular-nums}
+.taxon-options .taxon-family-name {font-style:normal}
+@media(max-width:550px){.taxon-options-frequency .taxon-option-cards{grid-template-columns:1fr}}

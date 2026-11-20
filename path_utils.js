@@ -17,5 +17,9 @@ export function getRepoBasePath() {
 
 export function getPath(relativePath) {
   const base = getRepoBasePath();
-  return base.replace(/\/+$/, "/") + relativePath.replace(/^\/+/, "");
+  // The botanical icon directory now uses WebP. Keep legacy legend filenames,
+  // filename case, encoded characters and URL suffixes; leave other assets alone.
+  const assetPath = relativePath.replace(/^\/+/, "")
+    .replace(/^(images\/objects\/[^?#]+)\.png(?=[?#]|$)/i, "$1.webp");
+  return base.replace(/\/+$/, "/") + assetPath;
 }

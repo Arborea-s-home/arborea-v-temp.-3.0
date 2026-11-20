@@ -25,8 +25,9 @@ export class ChartManager {
     }
   }
 
-  async createGradientBarChart(fieldsData, container) {
+  async createGradientBarChart(fieldsData, container, { maintainAspectRatio = true, requireConnected = false } = {}) {
     if (!this.chartJSLoaded) await this.loadChartJS();
+    if (requireConnected && !container?.isConnected) return;
     if (!container?.parentNode) {
       console.error('Invalid chart container');
       return;
@@ -103,7 +104,7 @@ export class ChartManager {
       }
     };
 
-    new Chart(canvas, {
+    return new Chart(canvas, {
       type: 'bar',
       data: {
         labels,
@@ -124,6 +125,7 @@ export class ChartManager {
       options: {
         indexAxis: 'y',
         responsive: true,
+        maintainAspectRatio,
         scales: { 
           x: {
             beginAtZero: true,

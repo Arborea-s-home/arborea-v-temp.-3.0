@@ -125,7 +125,7 @@ max-height: 70vh;
 overflow-y: auto;
 }
 
-.leaflet-popup-content canvas {
+.leaflet-popup:not(.homepage-area-popup) .leaflet-popup-content canvas {
 display: block !important;
 width: 100% !important;
 height: auto !important;
@@ -168,6 +168,30 @@ padding-bottom: 4px;
 .leaflet-popup-content-wrapper {
 max-height: 80vh;
 overflow-y: auto;
+}
+
+.homepage-area-popup .leaflet-popup-content-wrapper,
+.homepage-area-popup .leaflet-popup-content {
+  min-width: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+.homepage-area-popup .leaflet-popup-content.leaflet-popup-scrolled {
+  overflow: hidden auto;
+}
+
+.homepage-area-popup .chart-container-actual {
+  box-sizing: border-box;
+  min-height: 0;
+}
+
+.homepage-popup-chart {
+  position: relative;
+}
+
+body:has(#map .homepage-area-popup) .map-logo-container {
+  visibility: hidden;
 }
 
 /* Stile per lo switcher */

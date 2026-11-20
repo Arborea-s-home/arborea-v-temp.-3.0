@@ -9,6 +9,9 @@ export function createPopupContent({
 }) {
   const popupContent = document.createElement('div');
   popupContent.style.maxWidth = '500px';
+  let chartContainer;
+  let chart;
+  let chartRequest = 0;
 
   // Titolo
   const title = document.createElement('strong');
@@ -48,12 +51,11 @@ export function createPopupContent({
   });
 
   // Se ci sono dati, crea contenitore grafico + pulsante
-  if (fieldsData.length > 0 && window.chartManager) {
+  if (fieldsData.length > 0) {
     const chartWrapper = document.createElement('div');
     chartWrapper.className = 'chart-container-actual';
     chartWrapper.style.marginTop = '10px';
     chartWrapper.style.width = '100%';
-    chartWrapper.style.minHeight = `${Math.max(150, fieldsData.length * 40)}px`;
     popupContent.appendChild(chartWrapper);
 
     // Pulsante dettaglio (sopra al grafico)
@@ -61,9 +63,8 @@ export function createPopupContent({
     detailBtn.textContent = 'Full Details';
     detailBtn.className = 'dettaglio-btn';
     detailBtn.onclick = () => {
-      window.location.href = getPath(
-        `dettaglio_regioni/dettaglio.html?feature=${encodeURIComponent(rawName)}${group === 'municipality' ? '&group=municipality' : ''}`
-      );
+      const filter = group === 'province' ? 'province' : 'region';
+      window.location.href = getPath('webgis/index.html?' + new URLSearchParams({ [filter]: rawName }));
     };
     chartWrapper.appendChild(detailBtn);
 
@@ -75,16 +76,40 @@ export function createPopupContent({
     chartWrapper.appendChild(chartCaption);
 
     // Contenitore vero del grafico (canvas va qui dentro)
-    const chartContainer = document.createElement('div');
-    chartContainer.style.height = chartWrapper.style.minHeight;
-    chartContainer.style.width = '100%';
+    chartContainer = document.createElement('div');
+    chartContainer.className = 'homepage-popup-chart';
+    chartContainer.style.height = `${Math.max(150, fieldsData.length * 40)}px`;
     chartWrapper.appendChild(chartContainer);
-
-    // Crea il grafico dopo un breve delay
-    setTimeout(async () => {
-      await window.chartManager.createGradientBarChart(fieldsData, chartContainer);
-    }, 50);
   }
 
-  return popupContent;
+  async function showChart() {
+    if (!chartContainer?.isConnected) return;
+
+    const request = ++chartRequest;
+    try {
+      const nextChart = await window.chartManager?.createGradientBarChart(fieldsData, chartContainer, {
+        maintainAspectRatio: false,
+        requireConnected: true
+      });
+      if (request !== chartRequest) {
+        nextChart?.destroy();
+        return;
+      }
+      chart = nextChart;
+      if (!chart) chartContainer.textContent = 'Chart unavailable.';
+    } catch (error) {
+      if (request === chartRequest) chartContainer.textContent = 'Chart unavailable.';
+      console.error('Unable to render the homepage popup chart:', error);
+    }
+  }
+
+  function hideChart() {
+    chartRequest++;
+    chart?.destroy();
+    chart = undefined;
+  }
+
+  // Mantieni il nodo come valore di ritorno. `element` serve anche al map.js
+  // della prima patch se il browser ne usa ancora una copia in cache.
+  return Object.assign(popupContent, { element: popupContent, showChart, hideChart });
 }

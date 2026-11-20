@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ARBOREA · Atlante archeobotanico</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../homepage.css?v=20261118-2">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Spectral:wght@500;600;700&display=swap">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script defer src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+  <link rel="stylesheet" href="../assets/site-header.css">
+  <script type="module" src="../assets/site-header.js"></script>
+</head>
+<body class="arborea-home">
+  <arborea-header data-page="atlas">
+    <button id="atlas-guide" class="atlas-guide" type="button"><span aria-hidden="true">?</span> Guida</button>
+  </arborea-header>
+
+  <main class="atlas-layout">
+    <aside id="sidebar" aria-label="Filtri e navigazione dei siti">
+      <div class="atlas-intro">
+        <p>Siti archeobotanici</p>
+        <h1>Italia centrale</h1>
+        <div class="atlas-summary">
+          <div>
+            <strong id="atlas-site-count" class="atlas-count" aria-live="polite">—</strong>
+            <span id="atlas-count-caption" class="atlas-count-caption">Caricamento dei dati</span>
+          </div>
+          <a id="atlas-webgis" class="atlas-primary" href="../webgis/index.html?all=1">Apri WebGIS <span class="atlas-link-arrow" aria-hidden="true"></span></a>
+        </div>
+      </div>
+
+      <section class="atlas-filters" id="tutorial-group" aria-labelledby="atlas-filters-title">
+        <h2 id="atlas-filters-title">Tipologia di contesto</h2>
+        <div id="ambito-buttons"></div>
+      </section>
+
+      <section id="mapped-sites-list" aria-label="Esplora i siti per area">
+        <div class="atlas-mode" role="group" aria-label="Visualizzazione dei siti">
+          <button id="atlas-mode-list" type="button" aria-controls="atlas-list-view" aria-pressed="false">Elenco</button>
+          <button id="atlas-mode-chart" type="button" aria-controls="atlas-distribution" aria-pressed="true">Distribuzione</button>
+        </div>
+        <div id="atlas-list-view" hidden>
+          <label class="atlas-search"><span class="atlas-search-icon" aria-hidden="true"></span><input id="atlas-site-search" type="search" aria-label="Cerca un sito" placeholder="Cerca un sito"></label>
+          <div id="mapped-sites-container"></div>
+        </div>
+        <div id="atlas-distribution"></div>
+      </section>
+    </aside>
+
+    <section id="map-wrapper" aria-label="Mappa e cronologia">
+      <div class="atlas-map-frame">
+        <div id="map" aria-label="Mappa dei siti archeobotanici"></div>
+        <div class="atlas-boundary">
+          <span>Aggrega per</span>
+          <div class="atlas-mode" role="group" aria-label="Confini amministrativi">
+            <button type="button" data-boundary="region" aria-pressed="true">Regioni</button>
+            <button type="button" data-boundary="province" aria-pressed="false">Province</button>
+          </div>
+        </div>
+        <div id="legend" class="atlas-map-legend">
+          <h2 id="atlas-legend-title">Siti per regione</h2>
+          <div id="gradient-bar" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+          <div id="range-values"><span id="min-val">—</span><span id="max-val">—</span></div>
+        </div>
+        <p id="atlas-map-status" role="status" hidden></p>
+      </div>
+
+      <section id="timeline-container" aria-labelledby="atlas-timeline-title">
+        <div class="timeline-controls">
+          <h2 id="atlas-timeline-title">Cronologia</h2>
+          <p class="atlas-period"><span id="timeline-label-from"></span><span aria-hidden="true"> – </span><span id="timeline-label-to"></span></p>
+          <label class="atlas-undated"><input id="timeline-undated" type="checkbox"> Includi siti non datati</label>
+        </div>
+        <div class="atlas-timeline-scroll">
+          <div class="atlas-timeline-track">
+            <div class="timeline-bars" aria-hidden="true"></div>
+            <div class="timeline-axis"></div>
+            <div class="timeline-sliders">
+              <div class="atlas-range-line" aria-hidden="true"></div>
+              <input id="timeline-from" type="range" value="0" aria-label="Inizio del periodo">
+              <input id="timeline-to" type="range" value="0" aria-label="Fine del periodo">
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="../charts.js"></script>
+  <script type="module" src="../dashboard.js?v=20261118-2"></script>
+  <script type="module" src="../map.js?v=20261118-2"></script>
+  <script type="module" src="../timeline.js?v=20261118"></script>
+</body>
+</html>

@@ -1,472 +1,196 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>ARBOREA — Project Information</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="images/favicon.png" />
-
-  <!-- Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-
-  <!-- Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="./info.css" />
-
-  <!-- Polyfill & MathJax (puoi rimuoverlo se non ti serve più) -->
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-  <!-- JS -->
-  <script type="module" src="./info.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Sources, data model, publications, contributors and licences for the ARBOREA project.">
+  <title>Project documentation | ARBOREA</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&amp;family=Spectral:wght@500;600;700&amp;display=swap">
+  <link rel="icon" href="../images/logo_semplificato.png">
+  <link rel="stylesheet" href="../assets/site-header.css">
+  <link rel="stylesheet" href="info.css">
+  <script type="module" src="../assets/site-header.js"></script>
+  <script type="module" src="info.js"></script>
 </head>
-
 <body id="top">
-  <!-- HEADER -->
-  <header class="page-header">
-    <div class="header-content">
-      <a id="home-link" href="#">
-        <img id="project-logo" alt="ARBOREA Project Logo" data-src="images/logo_completo.png" />
-      </a>
-      <div class="header-text">
-        <h1>ARBOREA Project</h1>
-        <p class="subtitle">ARchaeoBOtanical geoReferenced rEcords of Ancient Italy</p>
+  <a class="skip" href="#main">Skip to content</a>
+  <arborea-header data-page="credits"></arborea-header>
+  <main id="main">
+    <div class="shell">
+      <div class="hero" id="section-presentation">
+        <div class="hero-copy">
+          <h1>Project documentation</h1>
+          <p>Trace the sources behind ARBOREA records, see how they are linked, and find the publications, contributors and licences for the project.</p>
+        </div>
+        <div class="hero-side">
+          <strong>ARBOREA</strong>
+          <span>CHANGES · Spoke 8</span>
+          <span>Sapienza University of Rome</span>
+        </div>
       </div>
-    </div>
-  </header>
+      <div class="document-layout">
+        <aside class="index" aria-label="On this page">
+          <nav>
+            <strong>On this page</strong>
+            <a href="#section-primary-sources">Sources and provenance</a>
+            <a href="#section-data-model">Data model</a>
+            <a href="#section-publications">Publications and documentation</a>
+            <a href="#section-scientific-team">Scientific team</a>
+            <a href="#section-partners">Partners and acknowledgements</a>
+            <a href="#section-licensing">Licences and reuse</a>
+          </nav>
+        </aside>
+        <div class="sections">
+          <section id="section-primary-sources" aria-labelledby="sources-title">
+            <h2 id="sources-title">Sources and provenance</h2>
+            <div class="split">
+              <article class="card">
+                <h3>Archaeobotanical records</h3>
+                <p>The publications listed in BRAIN are the bibliographic sources used to retrieve the archaeobotanical data in ARBOREA.</p>
+                <a class="action" href="https://brainplants.successoterra.net/References_List.html">Browse the BRAIN reference list</a>
+              </article>
+              <article class="card">
+                <h3>Archaeological contexts</h3>
+                <p>Where additional literature was used to document archaeological contexts, it is listed in the individual ARBOREA site records.</p>
+                <a class="action secondary" href="../webgis/index.html?all=1">Explore site records in the WebGIS</a>
+              </article>
+            </div>
+            <details class="disclosure">
+              <summary>Spatial sources and attribution</summary>
+              <dl class="sources">
+                <div><dt><a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a></dt><dd>OpenStreetMap data are available under the Open Database Licence (ODbL 1.0).</dd></div>
+                <div><dt><a href="https://gna.cultura.gov.it/disclaimer.html">Geoportale Nazionale per l’Archeologia (GNA)</a></dt><dd>See GNA’s conditions for the relevant collection and its citation requirements.</dd></div>
+                <div><dt><a href="https://www.archeositarproject.it/termini-e-condizioni/">ArcheoSITAR Project</a></dt><dd>Apply the terms supplied with the specific resource. See also the <a href="https://www.archeositarproject.it/open-data/">SITAR open-data documentation</a> for geoservices.</dd></div>
+              </dl>
+            </details>
+          </section>
 
-  <!-- BANDA LOGHI (full-bleed, come l’header) -->
-  <div class="logo-strip">
-    <img id="banda-logo" alt="Partner Logos" data-src="images/icons/banda_logo.png" />
-  </div>
+          <section id="section-data-model" aria-labelledby="model-title">
+            <h2 id="model-title">Data model</h2>
+            <p class="section-intro">Select an entity to inspect its fields and links. The diagram shows the logical relationships used to trace a record back to its context and sources.</p>
+            <div class="model">
+              <div class="diagram">
+                <div class="diagram-columns" aria-hidden="true"><span>ARBOREA records</span><span>References and vocabularies</span></div>
+                <div class="diagram-row reference-row">
+                  <button class="entity reference" type="button" data-entity="brain" aria-controls="entity-detail" aria-pressed="false">BRAIN site</button>
+                  
+                </div>
+                <div class="diagram-join">Site reference</div>
+                <div class="diagram-row">
+                  <button class="entity core" type="button" data-entity="site" aria-controls="entity-detail" aria-pressed="true">ARBOREA site</button>
+                </div>
+                <div class="diagram-join">1 site <span>·</span> many contexts</div>
+                <div class="diagram-row">
+                  <button class="entity core" type="button" data-entity="context" aria-controls="entity-detail" aria-pressed="false">Archaeological context<span>May contain sub-contexts</span></button>
+                  <span class="cross-label" aria-hidden="true">M:N</span>
+                  <button class="entity reference" type="button" data-entity="chronology" aria-controls="entity-detail" aria-pressed="false">Chronology</button>
+                </div>
+                <div class="diagram-join">1 context <span>·</span> many occurrences</div>
+                <div class="diagram-row">
+                  <button class="entity core" type="button" data-entity="occurrence" aria-controls="entity-detail" aria-pressed="false">Botanical occurrence</button>
+                  <span class="cross-label" aria-hidden="true">N:1</span>
+                  <button class="entity reference" type="button" data-entity="taxon" aria-controls="entity-detail" aria-pressed="false">Taxon thesaurus</button>
+                </div>
+                <div class="bibliography-link">
+                  <button class="entity reference" type="button" data-entity="bibliography" aria-controls="entity-detail" aria-pressed="false">Bibliography</button>
+                  <span>Sources linked through bibliographic associations</span>
+                </div>
+              </div>
+              <div id="entity-detail" class="inspector" aria-live="polite">
+                <h3>ARBOREA site</h3>
+                <p>The archaeological complex that brings its contexts together.</p>
+                <dl><div><dt>Identifier and name</dt><dd>ARBOREA site identifier and recorded place name.</dd></div><div><dt>BRAIN reference</dt><dd>External site identifier, where available.</dd></div><div><dt>Location</dt><dd>Coordinates, region and province.</dd></div></dl>
+                <p class="relationship">One site may contain multiple archaeological contexts.</p>
+              </div>
+            </div>
+            <details class="disclosure">
+              <summary>Reading the relationships</summary>
+              <ul>
+                <li>A context belongs to a site where that link is recorded. Contexts may also have a parent context.</li>
+                <li>A context can link to several chronological terms, and a term can apply to several contexts (M:N).</li>
+                <li>Several occurrences can link to the same taxon entry (N:1). A physical sample can yield more than one occurrence.</li>
+                <li>Bibliographic associations document the sources behind context and occurrence records.</li>
+              </ul>
+            </details>
+          </section>
 
-  <!-- LAYOUT: solo contenuto -->
-  <div class="page-layout no-sidebar">
-    <main class="content-container">
-      <!-- Presentation -->
-      <section id="section-presentation" class="intro-section">
-        <h2>Presentation</h2>
-        <div class="intro-grid">
-          <div class="intro-card">
-            <p>
-              ARBOREA (ARchaeoBOtanical geoReferenced rEcords of Ancient Italy) is a new digital tool designed to compile,
-              harmonize, and georeference archaeobotanical data from Central Italy. Developed within the NRRP PE5 CHANGES Spoke 8
-              and aligned with the BRAIN database, ARBOREA addresses key issues of data dispersion and terminological inconsistency.
-              The database integrates information from over 150 sites and 1400 contexts, cataloguing more than 7000 samples and nearly
-              500 plant taxa. Structured relationally and supported by dedicated thesauri for plant nomenclature, parts, preservation types,
-              and chronology, it enables advanced, multi-factor queries and comparative analyses. ARBOREA enhances data accessibility and
-              fosters interdisciplinary collaboration, offering a robust platform for reconstructing human-environment interactions across time.
-            </p>
-          </div>
-        </div>
-      </section>
+          <section id="section-publications" aria-labelledby="publications-title">
+            <span id="publications" class="anchor-target" aria-hidden="true"></span>
+            <h2 id="publications-title">Publications and documentation</h2>
+            <ul class="publications">
+              <li id="ref-1"><span>MetroArcheo · 2025</span><a href="https://doi.org/10.21014/tc26-2025.071">ARBOREA – A new georeferenced database for plant macro-remains from archaeological sites in Central Italy</a><small>C. Moricca, E. Di Fonso, R. Nicolini and L. Sadori · pp. 382–385</small></li>
+              <li id="ref-3"><span>Layers of Knowledge · 2026</span><a href="https://hdl.handle.net/11573/1760121">Arborea and beyond: archaeobotanical data and digital tools for the enhancement of tangible cultural heritage</a><small>C. Moricca, R. Nicolini, E. Di Fonso and L. Sadori · pp. 91–94</small></li>
+            </ul>
+            <h3 class="subheading">Side projects</h3>
+            <div class="split">
+              <article class="card side-project">
+                <h4>Lucus Feroniae</h4>
+                <p>A site-focused dataset of plant macro-remains from Lucus Feroniae, published alongside bioarchaeological research on ancient Latium.</p>
+                <div class="project-links"><a href="https://github.com/Arborea-s-home/Lucus_Feroniae_archaeobotanical">GitHub repository</a><a href="https://doi.org/10.1016/j.dib.2025.112275">Data paper</a></div>
+              </article>
+              <article class="card side-project" id="ref-2">
+                <h4><i>Vitis</i> and <i>Olea</i> in Central Italy</h4>
+                <p>A georeferenced dataset and map of published archaeobotanical records of grapevine and olive.</p>
+                <div class="project-links"><a href="https://arborea-s-home.github.io/vitis_olea/">Project map</a><a href="https://doi.org/10.1016/j.dib.2025.112443">Data paper</a><a href="https://doi.org/10.5281/zenodo.17976541">Dataset</a></div>
+              </article>
+            </div>
+          </section>
 
-      <!-- Licensing -->
-      <section id="section-licensing" class="licensing-section">
-        <h2>Licensing Overview</h2>
-        <div class="table-container">
-          <table class="styled-table">
-            <thead>
-              <tr>
-                <th>Component</th>
-                <th>Source</th>
-                <th>License</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Data Model</td>
-                <td>Developed by Erasmo Di Fonso</td>
-                <td><a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></td>
-              </tr>
-              <tr>
-                <td>Website</td>
-                <td>
-                  Derived from
-                  <a href="https://erasmdif.github.io/MyMiTo/" target="_blank" rel="noopener" class="inline-brand">
-                    <img class="inline-brand-logo" alt="MyMiTo" data-src="images/icons/logo_MyMiTo.png" />
-                    <span>MyModel (MyMiTo)</span>
-                  </a>
-                  by the same author
-                </td>
-                <td><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a></td>
-              </tr>
-              <tr>
-                <td>Icons</td>
-                <td>Developed by the author &amp; AI-generated</td>
-                <td><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a></td>
-              </tr>
-              <tr>
-                <td>Archaeobotanical &amp; Archaeological Data</td>
-                <td>Produced by the scientific team (see <a href="#section-scientific-team">Scientific Team</a>) from edited sources</td>
-                <td><a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a></td>
-              </tr>
-              <tr>
-                <td>Topographical Data</td>
-                <td>
-                  Produced by the scientific team (see <a href="#section-scientific-team">Scientific Team</a>) from online sources or custom-made
-                  from bibliographical information
-                </td>
-                <td><a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+          <section id="section-scientific-team" aria-labelledby="team-title">
+            <h2 id="team-title">Scientific team</h2>
+            <div class="team">
+              <article class="person"><span class="portrait">LS<img src="media/sadori.webp" alt="" width="58" height="58" loading="lazy"></span><div><h3><a href="https://corsidilaurea.uniroma1.it/docente/16dfbacc83fd3909f92688aa6c60490752eb961b27d9d949edd90400">Laura Sadori</a></h3><p>Project lead</p><small>Sapienza University of Rome · Associate Professor</small></div></article>
+              <article class="person"><span class="portrait">CM<img src="media/moricca.webp" alt="" width="58" height="58" loading="lazy"></span><div><h3><a href="https://research.uniroma1.it/researcher/defa0435663a6b48a91b83db8f58bde30df9595ee73d6e1f27feaca2">Claudia Moricca</a></h3><p>Scientific supervision</p><small>Sapienza University of Rome · Technical and Administrative Staff</small></div></article>
+              <article class="person"><span class="portrait">RN<img src="media/nicolini.webp" alt="" width="58" height="58" loading="lazy"></span><div><h3>Rachele Nicolini</h3><p>Archaeobotanical data collection and digitisation</p><small>Sapienza University of Rome · Research Fellow</small></div></article>
+              <article class="person"><span class="portrait">ED<img src="media/di-fonso.webp" alt="" width="58" height="58" loading="lazy"></span><div><h3><a href="https://www.ismed.cnr.it/en/staff/erasmo-di-fonso/" target="_blank" rel="noopener noreferrer">Erasmo di Fonso</a></h3><p>Archaeological data collection and digitisation<br>Back-end and front-end development</p></div></article>
+            </div>
+          </section>
 
-      <!-- Primary Sources -->
-      <section id="section-primary-sources" class="sources-section">
-        <h2>Primary Sources</h2>
+          <section id="section-partners" aria-labelledby="partners-title">
+            <h2 id="partners-title">Partners, credits and acknowledgements</h2>
+            <div class="credits">
+              <article class="partner-card">
+                <a class="partner-logo" href="https://brainplants.successoterra.net/sites.html" target="_blank" rel="noopener noreferrer" aria-label="BRAIN website"><img src="media/brain.webp" alt="BRAIN logo" loading="lazy"></a>
+                <div><h3><a href="https://brainplants.successoterra.net/sites.html" target="_blank" rel="noopener noreferrer">BRAIN</a></h3><p>Italian archaeobotanical database and source bibliography.</p></div>
+              </article>
+              <article class="partner-card">
+                <a class="partner-logo" href="https://www.actaplantarum.org/" target="_blank" rel="noopener noreferrer" aria-label="Acta Plantarum website"><img src="media/acta.webp" alt="Acta Plantarum logo" loading="lazy"></a>
+                <div><h3><a href="https://www.actaplantarum.org/" target="_blank" rel="noopener noreferrer">Acta Plantarum</a></h3><p>Botanical reference resource.</p></div>
+              </article>
+            </div>
+            <div class="acknowledgements">
+              <h3>Acknowledgements</h3>
+              <p>With thanks to <a href="https://dba.web.uniroma1.it/it/direttrice-di-biblioteca" target="_blank" rel="noopener noreferrer">Tiziana Babusci</a>, Library Director at Sapienza University of Rome, for her support in bibliographic research.</p>
+            </div>
+          </section>
 
-        <div class="explanation-card">
-          <h3>Archaeobotanical &amp; Archaeological Data</h3>
-          <p>The list below is driven by <code>../data/biblio.csv</code>. You may search freely; the first 5 results are shown with pagination.</p>
-          <div class="bib-toolbar">
-            <input id="bib-search" type="search" placeholder="Search authors, year, title, DOI/ISBN…" aria-label="Search bibliography" />
-          </div>
-          <div id="bib-table-wrap" class="table-container"></div>
-          <div id="bib-pagination" class="pagination"></div>
-        </div>
-
-        <div class="explanation-card">
-          <h3>Topographical Data (Online Sources)</h3>
-          <div class="table-container">
-            <table class="styled-table sources-table">
-              <thead>
-                <tr><th>Source</th><th>License</th></tr>
-              </thead>
+          <section id="section-licensing" aria-labelledby="licences-title">
+            <h2 id="licences-title">Licences and reuse</h2>
+            <table class="licences">
+              <caption class="sr-only">ARBOREA components and their licences</caption>
+              <thead><tr><th scope="col">Component</th><th scope="col">Credits</th><th scope="col">Licence</th></tr></thead>
               <tbody>
-                <tr>
-                  <td>
-                    <a class="source-logo-link" href="https://www.openstreetmap.org/" target="_blank" rel="noopener" aria-label="OpenStreetMap">
-                      <img class="inline-logo" data-src="images/icons/osm_logo.svg" alt="OSM" />
-                    </a>
-                  </td>
-                  <td><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a></td>
-                </tr>
-                <tr>
-                  <td>
-                    <a class="source-logo-link" href="https://gna.cultura.gov.it" target="_blank" rel="noopener" aria-label="GNA">
-                      <img class="inline-logo" data-src="images/icons/logo_GNA.png" alt="GNA" />
-                    </a>
-                  </td>
-                  <td>CC BY 4.0</td>
-                </tr>
-                <tr>
-                  <td>
-                    <a class="source-logo-link" href="https://www.archeositarproject.it/" target="_blank" rel="noopener" aria-label="SITAR">
-                      <img class="inline-logo logo-sitar" data-src="images/icons/logo_sitar.png" alt="SITAR" />
-                    </a>
-                  </td>
-                  <td>CC BY-SA 4.0</td>
-                </tr>
+                <tr><th scope="row">Data model</th><td>Developed by Erasmo di Fonso</td><td><a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a></td></tr>
+                <tr><th scope="row">Icons</th><td>Author-created and AI-generated assets</td><td><a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></td></tr>
+                <tr><th scope="row">Archaeobotanical and archaeological data</th><td>Compiled by the scientific team from published sources</td><td><a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></td></tr>
+                <tr><th scope="row">Topographical data</th><td>Compiled by the scientific team from online and bibliographic sources</td><td><a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></td></tr>
               </tbody>
             </table>
-          </div>
+            <p class="note">For third-party material and related projects, consult the licence and attribution requirements provided with the specific dataset or resource.</p>
+          </section>
         </div>
-      </section>
-
-      <!-- Scientific Team -->
-      <section id="section-scientific-team" class="team-section">
-        <h2>Scientific Team</h2>
-
-        <h3>ARBOREA Team</h3>
-        <div class="team-grid">
-          <a class="person-card" href="https://corsidilaurea.uniroma1.it/docente/16dfbacc83fd3909f92688aa6c60490752eb961b27d9d949edd90400#bootstrap-fieldgroup-nav-item--curriculum-vitae" target="_blank" rel="noopener">
-            <div class="avatar">
-              <img alt="Laura Sadori" data-src="images/people/Sadori.png" />
-            </div>
-            <div class="p-body">
-              <h4>Laura Sadori</h4>
-              <p class="affil">Sapienza Università di Roma — Associate Professor</p>
-              <p class="role">Project Lead</p>
-            </div>
-          </a>
-
-          <a class="person-card" href="https://research.uniroma1.it/researcher/defa0435663a6b48a91b83db8f58bde30df9595ee73d6e1f27feaca2" target="_blank" rel="noopener">
-            <div class="avatar">
-              <img alt="Claudia Moricca" data-src="images/people/Claudia.png" />
-            </div>
-            <div class="p-body">
-              <h4>Claudia Moricca</h4>
-              <p class="affil">Sapienza Università di Roma — Technical & Administrative Staff</p>
-              <p class="role">Scientific Supervision</p>
-            </div>
-          </a>
-
-          <!-- Rachele (UPDATED) -->
-          <div class="person-card">
-            <div class="avatar">
-              <img alt="Rachele Nicolini" data-src="images/people/Rachele.png" />
-            </div>
-            <div class="p-body">
-              <h4>Rachele Nicolini</h4>
-              <p class="affil">Sapienza Università di Roma — Research Fellow</p>
-              <p class="role">
-                Data Collection &amp; Digitisation
-                <span class="role-sub">(Archaeobotanical Data)</span>
-              </p>
-            </div>
-          </div>
-
-          <!-- Erasmo (NEW) -->
-          <div class="person-card">
-            <div class="avatar">
-              <img alt="Erasmo di Fonso" data-src="images/people/Erasmo.png" />
-            </div>
-            <div class="p-body">
-              <h4>Erasmo di Fonso</h4>
-              <p class="affil">ARBOREA</p>
-              <p class="role">
-                Data Collection &amp; Digitisation
-                <span class="role-sub">(Archaeological Data)</span><br />
-                Back- &amp; Front-end development
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <h3>Special Thanks</h3>
-        <div class="team-grid thanks">
-          <a class="person-card" href="https://dba.web.uniroma1.it/it/direttrice-di-biblioteca" target="_blank" rel="noopener">
-            <div class="avatar placeholder">T.B.</div>
-            <div class="p-body">
-              <h4>Tiziana Babusci</h4>
-              <p class="affil">Sapienza Università di Roma — Library Director</p>
-              <p class="role">Support in bibliographic research</p>
-            </div>
-          </a>
-        </div>
-      </section>
-
-      <!-- Partners & Credits -->
-      <section id="section-partners" class="partners-section">
-        <h2>Partners &amp; Credits</h2>
-        <div class="logo-grid round">
-          <a href="https://brainplants.successoterra.net/sites.html" target="_blank" rel="noopener" class="logo-card round">
-            <div class="circle">
-              <img alt="BRAIN" data-src="images/icons/logo_brain.png" />
-            </div>
-            <span class="logo-name">BRAIN</span>
-          </a>
-          <a href="https://www.actaplantarum.org/" target="_blank" rel="noopener" class="logo-card round">
-            <div class="circle">
-              <img alt="Acta Plantarum" data-src="images/icons/acta.png" />
-            </div>
-            <span class="logo-name">Acta Plantarum</span>
-          </a>
-        </div>
-      </section>
-
-      <!-- Data Model -->
-      <section id="section-data-model" class="datamodel-section">
-        <h2>Data Model</h2>
-        <p class="dm-intro">Click a table to expand its fields; hover the <span class="help">?</span> icons for short descriptions.</p>
-
-        <div class="dm-graph">
-          <div class="dm-grid">
-            <div class="dm-spTop" aria-hidden="true"></div>
-
-            <div class="table-card main dark short" data-table="brain-site">
-              <div class="table-head">
-                Brain Site
-                <button class="qh" data-tip="Site derived from BRAIN Plants.">?</button>
-                <span class="head-icon"><img class="mini-logo" data-src="images/icons/logo_brain.png" alt="BRAIN" /></span>
-              </div>
-              <ul class="fields">
-                <li><span>ID</span><button class="q" data-tip="Identifier of the BRAIN site.">?</button></li>
-                <li><span>Name</span><button class="q" data-tip="Site name as recorded in BRAIN.">?</button></li>
-              </ul>
-            </div>
-
-            <div class="dm-gut" aria-hidden="true"></div>
-
-            <div class="dm-gapL" aria-hidden="true"></div>
-            <div class="dm-gapM" aria-hidden="true"></div>
-            <div class="dm-gut" aria-hidden="true"></div>
-
-            <div class="table-card sys yellow pill short" data-table="bibliography">
-              <div class="table-head">
-                Bibliography
-                <button class="qh" data-tip="Material consulted for the dataset.">?</button>
-              </div>
-              <ul class="fields">
-                <li><span>name / author / year</span><button class="q" data-tip="Bibliographic citation metadata.">?</button></li>
-                <li><span>edit_in / editor</span><button class="q" data-tip="Where and by whom the work was published.">?</button></li>
-                <li><span>DOI / ISBN</span><button class="q" data-tip="Persistent identifiers.">?</button></li>
-                <li><span>link</span><button class="q" data-tip="External URL, when available.">?</button></li>
-              </ul>
-            </div>
-
-            <div class="table-card main light short" data-table="arborea-site">
-              <div class="table-head">
-                ARBOREA Site
-                <button class="qh" data-tip="The archaeological complex from which the sample was taken.">?</button>
-                <span class="head-icon"><img class="mini-logo" data-src="images/logo_completo.png" alt="ARBOREA" /></span>
-              </div>
-              <ul class="fields">
-                <li><span>ID</span><button class="q" data-tip="Primary key.">?</button></li>
-                <li><span>BRAIN_ID</span><button class="q" data-tip="Foreign key to BRAIN Site.">?</button></li>
-                <li><span>Name</span><button class="q" data-tip="Archaeological complex name.">?</button></li>
-                <li><span>chron_orig</span><button class="q" data-tip="Chronology as reported in the original publication.">?</button></li>
-                <li><span>typology</span><button class="q" data-tip="General site typology (e.g., funerary, settlement).">?</button></li>
-                <li><span>c_notes</span><button class="q" data-tip="Additional notes.">?</button></li>
-                <li><span>c_appr</span><button class="q" data-tip="Spatial approximation level (0–4).">?</button></li>
-                <li><span>source_type / source</span><button class="q" data-tip="Resource type and source for georeferencing.">?</button></li>
-                <li><span>region / province</span><button class="q" data-tip="Administrative region and province.">?</button></li>
-                <li><span>wikipedia / commons / wikidata / website</span><button class="q" data-tip="Optional public links.">?</button></li>
-                <li><span>OSM_ID</span><button class="q" data-tip="OpenStreetMap element ID.">?</button></li>
-              </ul>
-            </div>
-
-            <div class="dm-gut" aria-hidden="true"></div>
-
-            <div class="table-card sys orange hex short" data-table="chronology">
-              <div class="table-head">
-                Chronology
-                <button class="qh" data-tip="Periods, sub-periods and facies used in the project.">?</button>
-              </div>
-              <ul class="fields">
-                <li><span>name / ICCD name</span><button class="q" data-tip="Project and ICCD names.">?</button></li>
-                <li><span>date_from / date_to</span><button class="q" data-tip="Formal start and end dates.">?</button></li>
-                <li><span>other_names</span><button class="q" data-tip="Synonyms and aliases.">?</button></li>
-                <li><span>typology</span><button class="q" data-tip="Facet type (period / sub-period / facies).">?</button></li>
-                <li><span>parent_id</span><button class="q" data-tip="Recursive association for sub-periods.">?</button></li>
-              </ul>
-            </div>
-
-            <div class="table-card main light short" data-table="context">
-              <div class="table-head">
-                Archaeological Context
-                <button class="qh" data-tip="The minimum chrono-spatial unit to which the sample can be assigned.">?</button>
-              </div>
-              <ul class="fields">
-                <li><span>ID</span><button class="q" data-tip="Primary key.">?</button></li>
-                <li><span>context_name</span><button class="q" data-tip="Name of the context.">?</button></li>
-                <li><span>Site_ID</span><button class="q" data-tip="Foreign key to ARBOREA Site.">?</button></li>
-                <li><span>chron_orig</span><button class="q" data-tip="Original chronology.">?</button></li>
-                <li><span>typology</span><button class="q" data-tip="Context typology (e.g., funerary).">?</button></li>
-                <li><span>c_notes</span><button class="q" data-tip="Additional notes.">?</button></li>
-                <li><span>c_appr</span><button class="q" data-tip="Topographic approximation level (0–4).">?</button></li>
-                <li><span>source_type / source</span><button class="q" data-tip="Resource type and source for geometry.">?</button></li>
-                <li><span>geometry</span><button class="q" data-tip="Polygon representing the context.">?</button></li>
-              </ul>
-            </div>
-
-            <div class="dm-gut" aria-hidden="true"></div>
-
-            <div class="table-card sys blue lozenge short" data-table="taxon">
-              <div class="table-head">
-                Taxon Thesaurus
-                <button class="qh" data-tip="Comprehensive dictionary of Italian botanical species (taxonomic division from Floritaly).">?</button>
-              </div>
-              <ul class="fields">
-                <li><span>Taxon (complete) / Family / Genus / Species</span><button class="q" data-tip="Botanical hierarchy.">?</button></li>
-                <li><span>Patronymic</span><button class="q" data-tip="Taxonomic authorship (authority).">?</button></li>
-                <li><span>common_names</span><button class="q" data-tip="Common names.">?</button></li>
-                <li><span>attested_uses</span><button class="q" data-tip="Attested uses (from Acta Plantarum).">?</button></li>
-              </ul>
-            </div>
-
-            <div class="table-card main light short" data-table="sample">
-              <div class="table-head">
-                Archaeobotanical Sample
-                <button class="qh" data-tip="Portion representing a single taxon and assigned to a context.">?</button>
-              </div>
-              <ul class="fields">
-                <li><span>ID</span><button class="q" data-tip="Primary key.">?</button></li>
-                <li><span>context_ID</span><button class="q" data-tip="Foreign key to Context.">?</button></li>
-                <li><span>species_orig_pub</span><button class="q" data-tip="Taxon name as in the original publication.">?</button></li>
-                <li><span>taxon_id</span><button class="q" data-tip="Foreign key to Taxon Thesaurus.">?</button></li>
-                <li><span>cf_genus / cf_sp / cf_subsp</span><button class="q" data-tip="Uncertainty flags (cf.).">?</button></li>
-                <li><span>s_type</span><button class="q" data-tip="Macroremain type (e.g., carpological).">?</button></li>
-                <li><span>s_foss</span><button class="q" data-tip="Fossilisation process (e.g., carbonisation).">?</button></li>
-                <li><span>s_part</span><button class="q" data-tip="Plant part (e.g., endocarp).">?</button></li>
-                <li><span>sample_number</span><button class="q" data-tip="Sample ID in the original publication.">?</button></li>
-                <li><span>qt / entity</span><button class="q" data-tip="Quantitative and qualitative indications of remains.">?</button></li>
-                <li><span>weight_g</span><button class="q" data-tip="Sample weight (g).">?</button></li>
-                <li><span>s_notes</span><button class="q" data-tip="Additional notes.">?</button></li>
-                <li><span>AMS</span><button class="q" data-tip="Radiocarbon dates via Accelerator Mass Spectrometry (AMS).">?</button></li>
-                <li><span>photo</span><button class="q" data-tip="Photographic documentation, if any.">?</button></li>
-                <li><span>geometry</span><button class="q" data-tip="Point geometry, usually the context centroid.">?</button></li>
-              </ul>
-            </div>
-
-            <div class="dm-gut" aria-hidden="true"></div>
-          </div>
-        </div>
-
-        <p class="dm-note">
-          Relations: <em>Bibliography</em> ↔ <em>Site</em> (M:N), <em>Chronology</em> ↔ <em>Context</em> (M:N), <em>Sample</em> → <em>Taxon</em> (N:1).
-        </p>
-      </section>
-
-      <!-- Future -->
-      <section id="section-future" class="future-section">
-        <h2>Future Prospects</h2>
-        <div class="future-grid">
-          <div class="future-card">
-            <h3>Roadmap</h3>
-            <p>
-              Planned upgrades include progressive enrichment of thesauri, extended contextual metadata, and additional
-              validation layers for harmonisation and georeferencing workflows.
-            </p>
-          </div>
-          <div class="future-card">
-            <h3>Interoperability</h3>
-            <p>
-              The project aims at strengthening interoperability with external databases and linked open data resources,
-              while improving export options for research and teaching.
-            </p>
-          </div>
-        </div>
-      </section>
-
-    </main>
-  </div>
-
-  <!-- BOTTOM NAVBAR (icone only) -->
-  <nav class="bottom-nav" aria-label="Quick navigation">
-    <a class="bn" href="#section-presentation" aria-label="Presentation"><i class="bi bi-easel2"></i></a>
-    <a class="bn" href="#section-licensing" aria-label="Licensing"><i class="bi bi-shield-check"></i></a>
-    <a class="bn" href="#section-primary-sources" aria-label="Primary Sources"><i class="bi bi-journal-text"></i></a>
-    <a class="bn" href="#section-scientific-team" aria-label="Scientific Team"><i class="bi bi-people"></i></a>
-    <a class="bn" href="#section-partners" aria-label="Partners & Credits"><i class="bi bi-award"></i></a>
-    <a class="bn" href="#section-data-model" aria-label="Data Model"><i class="bi bi-diagram-3"></i></a>
-    <a class="bn" href="#section-future" aria-label="Future Prospects"><i class="bi bi-lightbulb"></i></a>
-
-    <span class="bn-sep" aria-hidden="true"></span>
-
-    <a class="bn" data-href="record_necropoli/necropoli/index.html?all=1" aria-label="WebGIS">
-      <i class="bi bi-map"></i>
-    </a>
-    <a class="bn" data-href="index.html" aria-label="Home"><i class="bi bi-house-door"></i></a>
-    <button class="bn" id="nav-print" type="button" aria-label="Print"><i class="bi bi-printer"></i></button>
-    <a class="bn" href="#top" aria-label="Back to top"><i class="bi bi-arrow-up"></i></a>
-  </nav>
-
-  <!-- FOOTER -->
-  <footer class="page-footer">
-    <div class="footer-content">
-      <div class="footer-left">
-        <p>© 2025 ARBOREA Project</p>
-        <p class="funding">
-          Project PE 0000020 CHANGES - CUP B53C22003780006, NRP Mission 4<br />
-          Component 2 Investment 1.3, Funded by the European Union - NextGenerationEU
-        </p>
-      </div>
-      <div class="footer-logos">
-        <img id="footer-logo-erasmo" alt="Author Logo" data-src="images/logo_erasmo.svg" />
-        <img id="footer-logo-sapienza" alt="Sapienza Logo" data-src="images/icons/logo_sapienza.png" />
       </div>
     </div>
+  </main>
+  <footer class="funding">
+    <div class="shell funding-copy"><div><strong>ARBOREA</strong><p>Project PE 0000020 CHANGES · CUP B53C22003780006<br>NRRP Mission 4, Component 2, Investment 1.3<br>Funded by the European Union – NextGenerationEU</p></div><a href="#top">Back to top</a></div>
+    <div class="funding-banner">
+      <div><img src="media/funding/eu.svg" alt="Funded by the European Union" loading="lazy"></div>
+      <div><img src="media/funding/mur.svg" alt="Ministero dell’Università e della Ricerca" loading="lazy"></div>
+      <div><img src="media/funding/italia-domani.svg" alt="Italia Domani · Piano Nazionale di Ripresa e Resilienza" loading="lazy"></div>
+      <div><img src="media/funding/sapienza.svg" alt="Sapienza Università di Roma" loading="lazy"></div>
+    </div>
+    <div class="shell footer-credit"><img src="../images/logo_erasmo.svg" alt="" width="27" height="27"><span>© 2025 ARBOREA Project</span></div>
   </footer>
-
-  <!-- Tooltip globale per i “?” -->
-  <div id="dm-tooltip" role="tooltip" aria-hidden="true"></div>
-
-  <noscript>Please enable JavaScript to load images and interactivity.</noscript>
 </body>
 </html>
